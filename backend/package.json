@@ -10,6 +10,18 @@
   "author": "Eirik Aasen",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "body-parser": "^1.19.0",
+    "jsonwebtoken": "^8.5.1",
+    "bcryptjs": "^2.4.3",
+    "express-rate-limit": "^5.5.1",
+    "winston": "^3.3.3",
+    "google-auth-library": "^7.0.2",
+    "mongoose": "^5.12.3"
+  },
+  "devDependencies": {
+    "mocha": "^8.3.2",
+    "chai": "^4.3.4",
+    "sinon": "^10.0.0"
   }
 }
