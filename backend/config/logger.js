@@ -34,4 +34,14 @@ logger.alert = (message, details) => {
   logger.error(`ALERT: ${message}`, details);
 };
 
+// Logging for token refresh and retry mechanism
+logger.tokenRefresh = (operation, details) => {
+  logger.info(`Token refresh operation: ${operation}`, details);
+};
+
+// Logging for user registration activities
+logger.userRegistration = (operation, details) => {
+  logger.info(`User registration operation: ${operation}`, details);
+};
+
 module.exports = logger;

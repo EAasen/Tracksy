@@ -21,6 +21,8 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   email: { type: String, required: true, unique: true, index: true },
   googleTokens: { type: Object },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
 });
 
 const User = mongoose.model('User', userSchema);

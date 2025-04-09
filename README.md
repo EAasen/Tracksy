@@ -196,3 +196,50 @@ To handle user registration and GDPR issues in the Tracksy application, follow t
 * **Privacy policy**: Create a comprehensive privacy policy that outlines how user data is collected, processed, and protected. Include this policy in the `README.md` and provide a link to it during the registration process.
 * **Logging and monitoring**: Use the `winston` logging library configured in `backend/config/logger.js` to log user registration activities and monitor for any suspicious behavior.
 * **Documentation**: Update the documentation to include information on user registration and GDPR compliance. Ensure that the `README.md` and any relevant documentation files are updated with the necessary details.
+
+### Token Refresh Process
+To handle expired OAuth tokens in the Tracksy application, follow these steps:
+
+* **Detect token expiration**: Implement logic to detect when an OAuth token has expired. This can be done by checking the expiration time stored with the token or by handling specific error responses from the service provider's API.
+* **Refresh token endpoint**: Create an endpoint in your backend to refresh the OAuth token using the refresh token provided by the service provider. For example, you can add a `/auth/refresh` endpoint in `backend/app.js`.
+* **Store refresh token**: Ensure that the refresh token is securely stored in your database. You can use the `googleTokens` field in the `User` schema defined in `backend/config/database.js`.
+* **Update credentials**: When the token is refreshed, update the stored credentials with the new access token and expiration time.
+* **Retry failed requests**: Implement a mechanism to retry failed API requests after refreshing the token. This can be done by catching the error, refreshing the token, and then retrying the request.
+* **Error handling and logging**: Use the `winston` logging library configured in `backend/config/logger.js` to log any errors related to token expiration and refresh attempts.
+* **Update documentation**: Document the token refresh process, including setup instructions and usage examples. Update the `README.md` and any relevant documentation files.
+
+### End-to-End Testing Process
+To implement end-to-end tests for the OAuth flow, follow these steps:
+
+* **Set up test environment**: Ensure that the test environment is configured correctly. Use tools like Mocha, Chai, and Sinon for testing. Refer to the `devDependencies` in `backend/package.json` for the necessary packages.
+* **Mock OAuth provider**: Create a mock OAuth provider to simulate the OAuth 2.0 flow. This will help in testing without relying on actual external services.
+* **Test user authentication**: Write tests to verify the user authentication flow, including sign-up, login, and password recovery. Ensure that the endpoints in `backend/app.js` are covered.
+* **Test OAuth authorization**: Write tests to verify the OAuth authorization endpoint (`/auth/google`). Ensure that the endpoint redirects users to the OAuth provider's authorization URL.
+* **Test OAuth callback**: Write tests to verify the OAuth callback endpoint (`/auth/google/callback`). Ensure that the endpoint handles the callback correctly, exchanges the authorization code for an access token, and stores the tokens securely.
+* **Test token storage**: Verify that the access token and refresh token are stored securely in the database. Check the `googleTokens` field in the `User` schema defined in `backend/config/database.js`.
+* **Test authenticated API requests**: Write tests to verify that authenticated API requests are made using the access token. Ensure that the access token is included in the request headers.
+* **Test token refresh**: Write tests to verify the token refresh mechanism. Ensure that the refresh token is used to obtain a new access token when the current one expires.
+* **Error handling and logging**: Verify that comprehensive error handling and logging are implemented for the OAuth flow. Check the `winston` logging library configuration in `backend/config/logger.js`.
+* **Update documentation**: Document the end-to-end testing process, including setup instructions and usage examples. Update the `README.md` and any relevant documentation files.
+
+### Data Retention Policy
+To implement data retention policies in the Tracksy application, follow these steps:
+
+* **Define retention periods**: Determine the retention periods for different types of data, such as user data, activity logs, and health metrics. Document these periods in a `data_retention_policy.md` file in the repository.
+* **Database schema updates**: Ensure that the database schema includes fields to track the creation and last update times for each record. This can be done by adding `createdAt` and `updatedAt` fields to the schemas in `backend/config/database.js`.
+* **Automated data deletion**: Implement a scheduled task to automatically delete data that has exceeded the retention period. This can be done using a cron job or a task scheduler like `node-cron`. The task should query the database for records older than the retention period and delete them.
+* **User notifications**: Notify users before their data is deleted. Implement a mechanism to send email notifications or in-app alerts to users, informing them of the upcoming data deletion and providing options to export their data.
+* **Data export**: Provide users with the ability to export their data before it is deleted. Implement an endpoint to handle data export requests and generate a machine-readable file (e.g., JSON) containing the user's data.
+* **Logging and monitoring**: Use the `winston` logging library configured in `backend/config/logger.js` to log data deletion activities and monitor for any issues. Ensure that logs include details about the records deleted and any errors encountered.
+* **Update documentation**: Document the data retention policy and the steps users can take to export their data. Update the `README.md` and any relevant documentation files to include information about the data retention policy and user options.
+
+### Linking Health Tracker Accounts
+To implement a user-friendly interface for linking health tracker accounts, consider the following best practices:
+
+* **Clear instructions**: Provide a page or popup in the webapp that shows clear and concise instructions for connecting a watch account (e.g., Garmin, Fitbit, Apple Health). This can be implemented in the `frontend/src/App.jsx` file.
+* **OAuth 2.0 flow**: Implement the OAuth 2.0 authorization flow to allow users to securely link their health tracker accounts. Refer to the `/auth/google` and `/auth/google/callback` endpoints in `backend/app.js` for examples.
+* **User feedback**: Provide real-time feedback to users during the linking process. Display loading indicators, success messages, and error messages to keep users informed.
+* **Responsive design**: Ensure that the linking interface is responsive and works well on different devices and screen sizes. Use a responsive front-end framework like Bootstrap or Material-UI.
+* **Security**: Securely store access tokens and refresh tokens in the database. Use the `googleTokens` field in the `User` schema defined in `backend/config/database.js`.
+* **Error handling**: Implement comprehensive error handling and logging for the OAuth 2.0 flow. Use the `winston` logging library configured in `backend/config/logger.js`.
+* **Documentation**: Update the documentation to include instructions for linking health tracker accounts. Ensure that the `README.md` and any relevant documentation files are updated with the necessary details.

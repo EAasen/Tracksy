@@ -7,6 +7,7 @@ const winston = require('winston');
 const { OAuth2Client } = require('google-auth-library');
 const app = express();
 const port = process.env.PORT || 3000;
+const { User } = require('./config/database');
 
 // Middleware to parse incoming request bodies
 app.use(bodyParser.json());
@@ -43,10 +44,10 @@ const oauth2Client = new OAuth2Client(
 // User authentication routes
 app.post('/signup', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, email } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
-    // Save user to database (pseudo-code)
-    // await User.create({ username, password: hashedPassword });
+    const user = new User({ username, password: hashedPassword, email });
+    await user.save();
     res.status(201).send('User created');
   } catch (error) {
     logger.error(`Sign-up error: ${error.message}`);
@@ -57,11 +58,10 @@ app.post('/signup', async (req, res) => {
 app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    // Find user in database (pseudo-code)
-    // const user = await User.findOne({ username });
-    // if (!user || !(await bcrypt.compare(password, user.password))) {
-    //   return res.status(401).send('Invalid credentials');
-    // }
+    const user = await User.findOne({ username });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).send('Invalid credentials');
+    }
     const token = jwt.sign({ username }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.json({ token });
   } catch (error) {
@@ -96,11 +96,31 @@ app.get('/auth/google/callback', async (req, res) => {
     const { code } = req.query;
     const { tokens } = await oauth2Client.getToken(code);
     oauth2Client.setCredentials(tokens);
-    // Save tokens to database (pseudo-code)
-    // await User.update({ googleTokens: tokens });
+    const user = await User.findOneAndUpdate(
+      { email: req.body.email },
+      { googleTokens: tokens },
+      { new: true }
+    );
     res.send('Google authentication successful');
   } catch (error) {
     logger.error(`Google authentication error: ${error.message}`);
+    res.status(500).send('Internal server error');
+  }
+});
+
+app.post('/auth/refresh', async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+    const { tokens } = await oauth2Client.refreshToken(refreshToken);
+    oauth2Client.setCredentials(tokens);
+    const user = await User.findOneAndUpdate(
+      { 'googleTokens.refresh_token': refreshToken },
+      { googleTokens: tokens },
+      { new: true }
+    );
+    res.json({ tokens });
+  } catch (error) {
+    logger.error(`Token refresh error: ${error.message}`);
     res.status(500).send('Internal server error');
   }
 });
