@@ -8,6 +8,7 @@ import Notifications from './components/Notifications';
 import NavigationMenu from './components/NavigationMenu';
 import SearchBar from './components/SearchBar';
 import Settings from './components/Settings';
+import 'tailwindcss/tailwind.css';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -54,10 +55,10 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
+    <div className="App container mx-auto p-4">
       <NavigationMenu />
       <SearchBar />
-      <h1>Welcome to Tracksy</h1>
+      <h1 className="text-2xl font-bold mb-4">Welcome to Tracksy</h1>
       {isLoggedIn ? (
         <>
           <p>Logged in as {userProfile?.username}</p>
@@ -85,28 +86,36 @@ function LoginForm({ onLogin, loading, error }) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Login</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <h2 className="text-xl font-semibold">Login</h2>
+      {error && <p className="text-red-500">{error}</p>}
       <div>
-        <label>Username:</label>
+        <label className="block">Username:</label>
         <input
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
+          className="w-full p-2 border border-gray-300 rounded"
+          aria-label="Username"
         />
       </div>
       <div>
-        <label>Password:</label>
+        <label className="block">Password:</label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          className="w-full p-2 border border-gray-300 rounded"
+          aria-label="Password"
         />
       </div>
-      <button type="submit" disabled={loading}>
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
         {loading ? 'Logging in...' : 'Login'}
       </button>
     </form>
