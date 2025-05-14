@@ -21,6 +21,7 @@ Simplifying fitness tracking and data integration.
 - [Roadmap](#roadmap)
 - [License](#license)
 - [Community](#community)
+- [Product Requirements Document (PRD)](#product-requirements-document-prd)
 
 ## Overview
 This project is an open-source alternative to fitness tracking platforms like Strava, focused on providing users full control over their data. The platform supports data integration from a wide range of sources, including Garmin Connect, Apple Health, Android Health, Huawei Health, Coros, Fitbit, Samsung Health, Wahoo, Suunto, Polar, and more.
@@ -243,3 +244,122 @@ To implement a user-friendly interface for linking health tracker accounts, cons
 * **Security**: Securely store access tokens and refresh tokens in the database. Use the `googleTokens` field in the `User` schema defined in `backend/config/database.js`.
 * **Error handling**: Implement comprehensive error handling and logging for the OAuth 2.0 flow. Use the `winston` logging library configured in `backend/config/logger.js`.
 * **Documentation**: Update the documentation to include instructions for linking health tracker accounts. Ensure that the `README.md` and any relevant documentation files are updated with the necessary details.
+
+## Product Requirements Document (PRD)
+
+## Product Title
+**OpenTrack** – The Open-Source Fitness & Health Data Platform
+
+## Overview
+OpenTrack is a privacy-focused, open-source platform for managing fitness and health data from multiple providers (e.g., Garmin, Apple Health, Fitbit, etc.). It empowers users to host their own data or subscribe to a hosted version with optional integrations and marketplace features. It offers full user control over data, optional anonymized sharing for AI/analytics, and developer extensibility.
+
+## Problem Statement
+Fitness enthusiasts and athletes rely on a wide range of devices and platforms to track their activities and health data. Most of this data is siloed in proprietary platforms like Strava, which are increasingly limiting access to third-party developers and fail to offer true data ownership. There is a need for a platform that:
+- Aggregates fitness and health data from multiple providers
+- Gives users full control over their data (store, share, delete)
+- Offers the flexibility of self-hosting or subscribing to a hosted service
+- Enables developer innovation via APIs and a marketplace
+
+## Goals
+- Allow users to collect and view activity and health data from various sources
+- Provide self-hosted and hosted versions of the platform
+- Ensure GDPR compliance and complete user data control
+- Create an open developer marketplace
+- Offer a modern, responsive web UI (mobile-friendly)
+
+## Non-Goals
+- Real-time competitive social features (e.g., leaderboards)
+- In-depth training planning and coaching (Phase 2+)
+
+## Features
+### Core Features (Phase 1)
+1. **User Authentication**
+   - Sign up, login, password reset
+   - Token-based auth (JWT)
+
+2. **Data Integrations (Manual or Token-Based)**
+   - Garmin Connect
+   - Apple Health
+   - Fitbit
+   - Suunto, Wahoo, Polar, Coros (future)
+
+3. **Activity and Health Data**
+   - Sync and store activities: run, cycle, swim, etc.
+   - Health metrics: heart rate, sleep, steps, recovery
+
+4. **Dashboard & Visualizations**
+   - Mobile-friendly dashboard
+   - Charts for activity volume, type, duration, and health trends
+
+5. **User Data Management**
+   - Export, delete, and manage all personal data
+   - GDPR compliant data policy
+
+6. **Developer Access & API**
+   - Public API for custom integrations
+   - API tokens scoped to user permissions
+
+7. **Privacy Controls**
+   - User decides who can access their data
+   - Anonymized sharing for research & ML opt-in
+
+### Marketplace (Phase 2)
+- Plugin-based extension system
+- Developer dashboard to submit and manage integrations
+- Revenue sharing model for hosted services
+
+## User Stories
+### As a user...
+- I want to connect my Garmin account so my activities sync automatically
+- I want to see all my fitness and health data in one place
+- I want to export and delete my data whenever I want
+- I want to self-host this app to control my data locally
+- I want to use a hosted version without giving up ownership
+
+### As a developer...
+- I want to build a plugin that uses OpenTrack data for a training AI
+- I want to integrate my own health sensor using the OpenTrack API
+
+## Technical Requirements
+- **Frontend:** React (Vite), Tailwind CSS
+- **Backend:** Node.js or Python (FastAPI), PostgreSQL
+- **Auth:** JWT-based session tokens
+- **Containerization:** Docker + Docker Compose
+- **Deployment:** GitHub Codespaces, CI/CD via GitHub Actions
+- **Hosting:** Self-hosted or managed cloud instance
+
+## Success Metrics
+- 100+ successful installs of the self-hosted version in the first 6 months
+- Daily syncing of data from at least 3 major providers
+- 90%+ user satisfaction on dashboard usability (feedback surveys)
+- 10+ developers using the API or building plugins by end of year one
+
+## Milestones
+### Phase 1: MVP (3 months)
+- Backend and frontend skeleton
+- Authentication + 2-3 integrations (Garmin, Apple Health, Fitbit)
+- Dashboard for activity/health data
+- Export/Delete data support
+- CI/CD + Docker setup
+
+### Phase 2: Developer Platform (6 months)
+- Public API + Dev Docs
+- Plugin framework for integrations and analytics
+- Developer account and plugin publishing system
+- Billing & revenue sharing for hosted services
+
+### Phase 3: AI and Community Tools (12+ months)
+- Anonymized data tools for AI feature training
+- Social extensions (groups, tagging, comparisons)
+- Team/coaching tools (optional modules)
+
+## Open Questions
+- Which providers offer open APIs or require OAuth user consent?
+- Should self-hosted users opt-in to global anonymized data aggregation?
+- How will plugin review/approval work in the hosted marketplace?
+
+## Appendix
+- **Figma Design Mockups** – Coming soon
+- **Data Schema (ERD)** – To be included after MVP backend setup
+- **Privacy Policy Draft** – In `docs/privacy.md`
+- **Sample .env Template** – In `env/.env.example`
