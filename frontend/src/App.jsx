@@ -1,14 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import axios from 'axios';
-import ActivityDataDisplay from './components/ActivityDataDisplay';
-import HealthMetrics from './components/HealthMetrics';
-import IntegrationManagement from './components/IntegrationManagement';
-import UserProfile from './components/UserProfile';
-import Notifications from './components/Notifications';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import NavigationMenu from './components/NavigationMenu';
 import SearchBar from './components/SearchBar';
-import Settings from './components/Settings';
+import PrefetchManager from './components/PrefetchManager';
+import ErrorBoundary from './components/ErrorBoundary';
 import 'tailwindcss/tailwind.css';
+
+// Lazy loaded components
+const Dashboard = lazy(() => import('./components/Dashboard'));
+const IntegrationManagement = lazy(() => import('./components/IntegrationManagement'));
+const UserProfile = lazy(() => import('./components/UserProfile'));
+const Notifications = lazy(() => import('./components/Notifications'));
+const Settings = lazy(() => import('./components/Settings'));
+
+// Loading fallback component
+const LoadingFallback = () => (
+  <div className="flex justify-center items-center h-48">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    <p className="ml-3 font-semibold text-gray-700">Loading...</p>
+  </div>
+);
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -53,26 +65,90 @@ function App() {
       fetchUserProfile();
     }
   }, []);
-
   return (
-    <div className="App container mx-auto p-4">
-      <NavigationMenu />
-      <SearchBar />
-      <h1 className="text-2xl font-bold mb-4">Welcome to Tracksy</h1>
-      {isLoggedIn ? (
-        <>
-          <p>Logged in as {userProfile?.username}</p>
-          <ActivityDataDisplay />
-          <HealthMetrics />
-          <IntegrationManagement />
-          <UserProfile />
-          <Notifications />
-          <Settings />
-        </>
-      ) : (
-        <LoginForm onLogin={handleLogin} loading={loading} error={error} />
-      )}
-    </div>
+    <Router>
+      <div className="App min-h-screen bg-gray-50">
+        <NavigationMenu />
+        {/* Add PrefetchManager component to handle component prefetching */}
+        {isLoggedIn && <PrefetchManager />}
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold">Tracksy</h1>
+            {isLoggedIn && (
+              <div className="flex items-center">
+                <SearchBar />
+                <div className="ml-4 text-sm font-medium text-gray-600">
+                  Welcome, {userProfile?.username || 'User'}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Main Navigation */}
+          {isLoggedIn && (
+            <div className="mb-6">
+              <nav className="flex space-x-4">
+                <Link 
+                  to="/dashboard" 
+                  className={`px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200 
+                    ${window.location.pathname === '/dashboard' ? 'bg-blue-500 text-white' : ''}`}
+                >
+                  Dashboard
+                </Link>
+                <Link 
+                  to="/integrations" 
+                  className={`px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200
+                    ${window.location.pathname === '/integrations' ? 'bg-blue-500 text-white' : ''}`}
+                >
+                  Integrations
+                </Link>
+                <Link 
+                  to="/profile" 
+                  className={`px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200
+                    ${window.location.pathname === '/profile' ? 'bg-blue-500 text-white' : ''}`}
+                >
+                  Profile
+                </Link>
+                <Link 
+                  to="/notifications" 
+                  className={`px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200
+                    ${window.location.pathname === '/notifications' ? 'bg-blue-500 text-white' : ''}`}
+                >
+                  Notifications
+                </Link>
+                <Link 
+                  to="/settings" 
+                  className={`px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200
+                    ${window.location.pathname === '/settings' ? 'bg-blue-500 text-white' : ''}`}
+                >
+                  Settings
+                </Link>
+              </nav>
+            </div>
+          )}
+
+          {/* Main Content */}
+          <div className="main-content bg-white rounded-lg shadow-sm p-6">            {isLoggedIn ? (
+              <ErrorBoundary>
+                <Suspense fallback={<LoadingFallback />}>
+                  <Routes>
+                    <Route path="/dashboard" element={<Dashboard user={userProfile} />} />
+                    <Route path="/integrations" element={<IntegrationManagement />} />
+                    <Route path="/profile" element={<UserProfile user={userProfile || {}} />} />
+                    <Route path="/notifications" element={<Notifications notifications={[]} />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                    <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                  </Routes>
+                </Suspense>
+              </ErrorBoundary>
+            ) : (
+              <LoginForm onLogin={handleLogin} loading={loading} error={error} />
+            )}
+          </div>
+        </div>
+      </div>
+    </Router>
   );
 }
 
