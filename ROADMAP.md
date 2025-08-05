@@ -1,25 +1,281 @@
-# Tracksy Development Roadmap (Updated May 30, 2025)
+# Tracksy Development Roadmap (Updated August 5, 2025)
 
-This document outlines the development roadmap for Tracksy, an Open-Source Fitness Data Platform. The roadmap is divided into phases, each focusing on specific aspects of the platform.
+This document outlines the development roadmap for Tracksy, an Open-Source Adventure & Fitness Platform. The roadmap is divided into phases, each focusing on specific aspects of the platform.
+
+## 🎯 Adventure Platform MVP Vision
+
+Create a functional self-hosted platform that allows users to plan, discover, and share outdoor adventures with core features that differentiate it from existing solutions while maintaining simplicity for the initial release.
 
 ## Table of Contents
+- [Adventure Platform MVP Vision](#adventure-platform-mvp-vision)
+- [MVP Development Plan](#mvp-development-plan)
 - [Current Phase: Phase 1 - Core Functionality and Basic Integrations](#current-phase-phase-1---core-functionality-and-basic-integrations)
-  - [Current Status](#current-status)
-  - [Phase 1 Detailed Plan](#phase-1-detailed-plan)
-  - [Remaining Phase 1 Tasks](#remaining-phase-1-tasks)
-- [Phase 2: Marketplace for Plugins and Third-Party Apps](#phase-2-marketplace-for-plugins-and-third-party-apps)
+- [Phase 2: Adventure Platform Features & Marketplace](#phase-2-adventure-platform-features--marketplace)
 - [Phase 3: Advanced Analytics and AI-Driven Insights](#phase-3-advanced-analytics-and-ai-driven-insights)
 - [Phase 4: Enhanced Privacy Features and Federated Data Sharing](#phase-4-enhanced-privacy-features-and-federated-data-sharing)
 - [Continuous Improvement Areas](#continuous-improvement-areas)
 - [Implementation Guidelines](#implementation-guidelines)
 - [Implementation Guides](#implementation-guides)
-  - [API Integrations](#api-integrations)
-  - [OAuth 2.0 Authentication](#oauth-20-authentication)
-  - [User Registration and GDPR Compliance](#user-registration-and-gdpr-compliance)
-  - [Token Refresh Process](#token-refresh-process)
-  - [End-to-End Testing Process](#end-to-end-testing-process)
-  - [Data Retention Policy](#data-retention-policy)
-  - [Linking Health Tracker Accounts](#linking-health-tracker-accounts)
+
+## 📋 MVP Development Plan
+
+### Phase 1A: Core Backend & Web Interface (Weeks 1-8)
+
+#### Essential Backend Features
+- **User Management**
+  - User registration/login with email
+  - Basic profile management
+  - Password reset functionality
+  - JWT-based authentication
+
+- **Trail/Route Data Management**
+  - Import/export GPX files
+  - Basic trail information (name, description, difficulty, distance)
+  - Elevation profile generation
+  - Simple search and filtering
+
+- **Trip Planning**
+  - Create trip plans with basic waypoints
+  - Add notes and expected timing
+  - Save planned trips to user account
+  - Export trip data as GPX
+
+- **Basic Sharing**
+  - Make trips public/private
+  - Share trip links with others
+  - Simple activity feed for public trips
+
+#### Essential Web Interface
+- **Authentication Pages**
+  - Login/register forms
+  - Password reset workflow
+  - Profile management page
+
+- **Main Dashboard**
+  - Recent trips overview
+  - Quick access to planning tools
+  - Basic activity feed
+
+- **Trip Planning Interface**
+  - Interactive map with basic controls
+  - GPX file upload/download
+  - Route drawing tools
+  - Waypoint management
+
+- **Discovery Interface**
+  - Trail/route browsing with filters
+  - Search functionality
+  - Trip detail pages with maps
+
+### Phase 1B: Mobile Foundation (Weeks 9-12)
+
+#### React Native Setup
+- **Cross-platform mobile app foundation**
+  - Navigation structure
+  - Authentication flow
+  - Basic map integration
+  - Profile management
+
+#### Core Mobile Features
+- **Essential mobile functionality**
+  - Trip viewing and basic planning
+  - GPX file import/export
+  - Offline map viewing (basic)
+  - GPS location access
+
+### Phase 1C: Docker & Deployment (Weeks 13-14)
+
+#### Self-Hosted Deployment
+- **Docker containerization**
+  - Backend API container
+  - Frontend web container
+  - PostgreSQL database container
+  - Redis for session management
+
+- **Deployment Tools**
+  - Docker Compose setup
+  - Environment configuration
+  - Basic backup scripts
+  - Installation documentation
+
+## 🏗️ MVP Technical Architecture
+
+### Backend Stack
+- **Runtime**: Node.js with Express.js
+- **Database**: PostgreSQL with PostGIS for spatial data
+- **Authentication**: JWT tokens with bcrypt
+- **File Storage**: Local filesystem (S3-compatible for hosted)
+- **Maps**: OpenStreetMap tiles via Leaflet
+
+### Frontend Stack
+- **Framework**: React with TypeScript
+- **State Management**: React Query + Context API
+- **UI Library**: Tailwind CSS with Headless UI
+- **Maps**: Leaflet with React-Leaflet
+- **Build Tool**: Vite
+
+### Mobile Stack
+- **Framework**: React Native with TypeScript
+- **Navigation**: React Navigation 6
+- **Maps**: React Native Maps
+- **State**: React Query + AsyncStorage
+
+### Database Schema (MVP)
+
+```sql
+-- Users
+users (id, email, password_hash, username, created_at, updated_at)
+
+-- Trips/Routes
+trips (id, user_id, title, description, distance, elevation_gain, 
+       difficulty, activity_type, gpx_data, is_public, created_at)
+
+-- Trail Database (basic)
+trails (id, name, description, location, distance, elevation_gain, 
+        difficulty, activity_type, gpx_data, source)
+
+-- Activity Logs
+activities (id, user_id, trip_id, completed_at, duration, notes)
+
+-- Sharing
+trip_shares (id, trip_id, share_token, expires_at)
+```
+
+## 📅 MVP Development Timeline
+
+### Week 1-2: Project Setup & Backend Foundation
+- Set up development environment
+- Initialize project structure
+- Implement user authentication
+- Basic database schema and models
+- API endpoint structure
+
+### Week 3-4: Core Backend APIs
+- Trip CRUD operations
+- GPX file processing
+- Basic trail data management
+- Search and filtering APIs
+- File upload handling
+
+### Week 5-6: Web Frontend Foundation
+- React application setup
+- Authentication UI
+- Main dashboard layout
+- Map integration basics
+- Responsive design foundation
+
+### Week 7-8: Web Planning Interface
+- Interactive trip planning
+- Route drawing and editing
+- Waypoint management
+- Trip sharing functionality
+- Basic testing and bug fixes
+
+### Week 9-10: Mobile App Setup
+- React Native project initialization
+- Authentication flow
+- Basic navigation structure
+- Map integration
+- API integration
+
+### Week 11-12: Mobile Core Features
+- Trip viewing interface
+- Basic planning capabilities
+- GPX import/export
+- Profile management
+- Testing on both platforms
+
+### Week 13-14: Docker & Deployment
+- Docker containerization
+- Docker Compose setup
+- Deployment documentation
+- Basic CI/CD pipeline
+- Final testing and documentation
+
+## 🎯 MVP Success Metrics
+
+### Functional Metrics
+- [ ] Users can register, login, and manage profiles
+- [ ] Users can create, edit, and delete trip plans
+- [ ] Users can import/export GPX files
+- [ ] Users can discover and view public trips
+- [ ] Users can share trips with others
+- [ ] Web interface works on desktop and mobile browsers
+- [ ] Mobile apps install and run on iOS/Android
+- [ ] Docker deployment works with single command
+
+### Technical Metrics
+- [ ] API response times < 500ms for core endpoints
+- [ ] Web interface loads in < 3 seconds
+- [ ] Mobile apps start in < 5 seconds
+- [ ] 95%+ uptime during testing period
+- [ ] Zero critical security vulnerabilities
+
+## 🚫 Explicitly NOT in MVP
+
+### Advanced Features (Post-MVP)
+- Real-time collaboration on trip planning
+- Advanced route optimization algorithms
+- Weather integration
+- Social features (following, comments, ratings)
+- Advanced analytics and statistics
+- Offline mobile functionality
+- Multiple map providers
+- Advanced trail data from external APIs
+- Photo/media attachments
+- Group trip management
+- Integration with fitness trackers
+
+### Technical Debt Acceptable in MVP
+- Basic error handling (can be improved later)
+- Simple UI/UX (professional but not polished)
+- Limited scalability optimizations
+- Basic security (authentication only)
+- Minimal automated testing
+- Simple deployment process
+
+## 💰 MVP Resource Requirements
+
+### Development Team (MVP)
+- 1 Full-stack developer (primary)
+- 1 Mobile developer (part-time after week 8)
+- 1 DevOps/Infrastructure person (weeks 13-14)
+
+### Infrastructure (MVP)
+- Development servers ($50/month)
+- Testing devices (iOS/Android)
+- Basic monitoring tools
+- Domain and SSL certificates
+
+**Timeline: 14 weeks to working MVP**
+**Budget: ~$15,000-25,000 (depending on team setup)**
+
+## 🔄 Post-MVP Roadmap
+
+### Phase 4: Enhanced Features (Months 4-6)
+- Advanced mobile features (full offline maps, GPS tracking)
+- Improved UI/UX based on user feedback
+- Weather integration and safety features
+- Photo uploads and trip documentation
+- Social features (ratings, comments, following)
+
+### Phase 5: Community & Scaling (Months 7-12)
+- Hosted version launch
+- Extended trail database integration
+- Real-time collaboration features
+- Mobile app store releases
+- Community building tools
+
+### Phase 6: Advanced Features (Year 2)
+- AI-powered route recommendations
+- Integration with fitness platforms
+- Advanced analytics
+- Enterprise features
+- API for third-party developers
+
+---
+
+**This MVP focuses on core functionality that provides immediate value while building a foundation for advanced features in future iterations.**
 
 ## Current Phase: Phase 1 - Core Functionality and Basic Integrations
 
@@ -28,36 +284,48 @@ This document outlines the development roadmap for Tracksy, an Open-Source Fitne
 - Basic API integrations with Garmin Connect, Apple Health, and Fitbit
 - Database models and schema for users, activity logs, and health metrics
 - Initial frontend UI including dashboard, activity tracking, and settings
+- **NEW**: Adventure platform MVP development initiated
 
 ### Phase 1 Detailed Plan
 
-#### Backend Tasks
-- Finalize user authentication (sign-up, login, password recovery).
-- Complete API integrations for Garmin Connect, Apple Health, and Fitbit.
-- Finalize database models and schema for users, activity logs, and health metrics.
-- Implement and test periodic data sync mechanisms.
-- Ensure logging and error handling is comprehensive and consistent.
+#### Fitness Tracking Foundation (Ongoing)
+- Finalize user authentication (sign-up, login, password recovery)
+- Complete API integrations for Garmin Connect, Apple Health, and Fitbit
+- Finalize database models and schema for users, activity logs, and health metrics
+- Implement and test periodic data sync mechanisms
+- Ensure logging and error handling is comprehensive and consistent
+
+#### Adventure Platform MVP Integration (Weeks 1-14)
+- **Weeks 1-8**: Core backend and web interface for adventure planning
+- **Weeks 9-12**: Mobile foundation with React Native
+- **Weeks 13-14**: Docker deployment and self-hosting setup
 
 #### Frontend Tasks
-- Integrate authentication pages with the backend.
-- Finalize the dashboard UI to display activity data and health metrics.
-- Refine the settings page for managing integrations and account preferences.
-- Ensure mobile responsiveness and cross-browser compatibility.
-- Validate UI improvements made in the separate UI enhancement issue.
+- Integrate authentication pages with the backend
+- Finalize the dashboard UI to display activity data and health metrics
+- **NEW**: Add adventure planning interface with map integration
+- **NEW**: Implement trip planning and route discovery features
+- Refine the settings page for managing integrations and account preferences
+- Ensure mobile responsiveness and cross-browser compatibility
+- Validate UI improvements made in the separate UI enhancement issue
 
 #### Deployment & Testing Tasks
-- Finalize Docker configurations and ensure both backend and frontend services run reliably.
-- Set up CI/CD pipelines for automated builds, tests, and deployments.
-- Write and execute unit tests for backend and frontend components.
-- Conduct integration and end-to-end tests to validate key workflows.
-- Update documentation for API endpoints and integration guides.
+- **Enhanced**: Docker configurations for both fitness and adventure features
+- Set up CI/CD pipelines for automated builds, tests, and deployments
+- Write and execute unit tests for backend and frontend components
+- **NEW**: Test adventure-specific features (GPX import/export, mapping)
+- Conduct integration and end-to-end tests to validate key workflows
+- Update documentation for API endpoints and integration guides
 
 #### Acceptance Criteria
-- All user authentication, data integrations, and scheduled syncing functions are fully operational and tested.
-- The web app displays activity data clearly and allows users to manage their integrations effectively.
-- Deployment configurations (Docker, CI/CD) are finalized and functional.
-- Comprehensive test coverage confirms the stability of the platform.
-- Documentation is updated to reflect all changes made during Phase 1.
+- All user authentication, data integrations, and scheduled syncing functions are fully operational and tested
+- **NEW**: Adventure planning MVP is functional with trip creation, GPX handling, and basic sharing
+- **NEW**: Mobile apps can view trips and handle basic adventure planning
+- The web app displays activity data clearly and allows users to manage their integrations effectively
+- **NEW**: Docker deployment supports both fitness tracking and adventure planning features
+- Deployment configurations (Docker, CI/CD) are finalized and functional
+- Comprehensive test coverage confirms the stability of the platform
+- Documentation is updated to reflect all changes made during Phase 1
 
 ### Remaining Phase 1 Tasks
 - **Authentication & Authorization**
@@ -102,65 +370,133 @@ This document outlines the development roadmap for Tracksy, an Open-Source Fitne
   - Create component usage documentation with examples
   - Document data models and relationships
 
-## Phase 2: Marketplace for Plugins and Third-Party Apps
+## Phase 2: Adventure Platform Features & Marketplace
 
-- **Developer Portal**
-  - Create a developer registration and authentication system
-  - Design and implement API documentation portal
-  - Build developer sandbox for testing integrations
-  - Implement API key generation and management
+### Adventure Platform Features (Post-MVP Enhancement)
+- **Advanced Trip Planning System**
+  - Real-time collaboration on trip planning (excluded from MVP)
+  - Advanced route optimization algorithms (basic routing in MVP)
+  - Multi-day trip planning with camping and accommodation integration
+  - Weather integration and safety features (basic weather in MVP)
 
-- **Marketplace Infrastructure**
-  - Design plugin architecture and extension points
-  - Develop plugin submission and review workflow
-  - Create plugin versioning and update mechanism
-  - Implement plugin installation and configuration UI
+- **Enhanced Route Discovery Engine**
+  - Integration with AllTrails, Komoot, and other trail platforms (basic trail DB in MVP)
+  - Advanced filtering and recommendation algorithms (simple search in MVP)
+  - Community-driven route ratings and reviews (basic sharing in MVP)
+  - Trail condition updates and crowdsourced data
 
-- **Security & Compliance**
-  - Develop security review process for third-party plugins
-  - Implement sandbox execution environment for plugins
-  - Create data access policies and permission system
-  - Develop usage monitoring and anomaly detection
+- **Advanced Offline Mapping & Navigation**
+  - Multiple map providers and layer support (OSM only in MVP)
+  - Advanced GPS navigation with turn-by-turn directions (basic GPS in MVP)
+  - Offline area management and synchronization (basic offline viewing in MVP)
+  - Emergency features and location sharing
+
+- **Social & Community Features**
+  - User following and friend systems (excluded from MVP)
+  - Comments and ratings on trips and trails (excluded from MVP)
+  - Group trip management and coordination (excluded from MVP)
+  - Adventure challenges and achievements (excluded from MVP)
+
+### Enhanced Mobile Applications
+- **Advanced iOS Features**
+  - Full offline functionality (basic offline viewing in MVP)
+  - Apple HealthKit integration
+  - Apple Watch companion app
+  - Advanced camera and photo features (photo uploads excluded from MVP)
+
+- **Advanced Android Features**
+  - Google Fit integration
+  - Wear OS companion app
+  - Advanced widgets and shortcuts
+  - Background GPS tracking optimizations
+  - Feature-complete Android application
+  - Integration with Android fitness ecosystems
+  - Offline map synchronization
+  - Background activity tracking
+
+### Developer Portal
+- Create a developer registration and authentication system
+- Design and implement API documentation portal
+- Build developer sandbox for testing integrations
+- Implement API key generation and management
+
+### Marketplace Infrastructure
+- Design plugin architecture and extension points
+- Develop plugin submission and review workflow
+- Create plugin versioning and update mechanism
+- Implement plugin installation and configuration UI
+
+### Security & Compliance
+- Develop security review process for third-party plugins
+- Implement sandbox execution environment for plugins
+- Create data access policies and permission system
+- Develop usage monitoring and anomaly detection
 
 ## Phase 3: Advanced Analytics and AI-Driven Insights
 
-- **Data Processing Pipeline**
-  - Design scalable data processing architecture
-  - Implement stream processing for real-time analytics
-  - Develop data aggregation and summarization services
-  - Create data normalization across different sources
+### Adventure Analytics & Intelligence
+- **Performance Analysis for Outdoor Activities**
+  - Trail difficulty assessment and completion time prediction
+  - Elevation gain/loss analysis and conditioning recommendations
+  - Weather impact analysis on adventure performance
+  - Route optimization based on fitness level and preferences
 
-- **Machine Learning Models**
-  - Develop training pipeline for personalized recommendations
-  - Create anomaly detection for health metrics
-  - Implement trend analysis and forecasting
-  - Design and train workout recommendation system
+- **Adventure Recommendation Engine**
+  - AI-powered trail and route suggestions
+  - Personalized adventure planning based on fitness data
+  - Group adventure planning and compatibility matching
+  - Seasonal and weather-based activity recommendations
 
-- **Visualization & Reporting**
-  - Enhance data visualization components
-  - Create customizable dashboard widgets
-  - Develop exportable reports and insights
-  - Implement comparison tools for historical data
+### Data Processing Pipeline
+- Design scalable data processing architecture
+- Implement stream processing for real-time analytics
+- Develop data aggregation and summarization services
+- Create data normalization across different sources
+
+### Machine Learning Models
+- Develop training pipeline for personalized recommendations
+- Create anomaly detection for health metrics
+- Implement trend analysis and forecasting
+- Design and train workout recommendation system
+
+### Visualization & Reporting
+- Enhanced data visualization components for adventure metrics
+- Create customizable dashboard widgets for trip planning
+- Develop exportable reports and adventure insights
+- Implement comparison tools for historical performance data
 
 ## Phase 4: Enhanced Privacy Features and Federated Data Sharing
 
-- **Privacy Controls**
-  - Implement granular data sharing permissions
-  - Create data anonymization tools
-  - Develop privacy audit and compliance reporting
-  - Design and implement data retention policies
+### Adventure Community Platform
+- **Social Adventure Features**
+  - Group adventure planning and coordination
+  - Adventure photo and story sharing with privacy controls
+  - Community-driven trail reviews and condition updates
+  - Mentorship and guided adventure programs
 
-- **Federated Architecture**
-  - Design protocol for secure node-to-node communication
-  - Implement federated identity management
-  - Create distributed data synchronization mechanism
-  - Develop node discovery and registration system
+- **Cross-Platform Integration**
+  - Federated sharing between different Tracksy instances
+  - Integration with existing outdoor community platforms
+  - Adventure challenge and achievement systems
+  - Outdoor gear recommendation and integration marketplace
 
-- **Community Features**
-  - Design and implement group challenges and competitions
-  - Create social features with privacy controls
-  - Develop community-contributed insights and workouts
-  - Implement mentorship and coaching features
+### Privacy Controls
+- Implement granular data sharing permissions for adventure data
+- Create location data anonymization tools for trail sharing
+- Develop privacy audit and compliance reporting
+- Design and implement adventure-specific data retention policies
+
+### Federated Architecture
+- Design protocol for secure node-to-node communication
+- Implement federated identity management for outdoor communities
+- Create distributed adventure data synchronization mechanism
+- Develop node discovery and registration system for adventure networks
+
+### Community Features
+- Design and implement group challenges and outdoor competitions
+- Create social features with location privacy controls
+- Develop community-contributed adventure insights and route guides
+- Implement mentorship and outdoor education features
 
 ## Continuous Improvement Areas
 
@@ -194,11 +530,12 @@ This document outlines the development roadmap for Tracksy, an Open-Source Fitne
 - Two-factor authentication
 
 ### Frontend Optimizations
-- Server-side rendering
-- Progressive Web App implementation
-- Native mobile app development
-- Offline-first architecture
-- Shared component library
+- Server-side rendering for better performance
+- Progressive Web App implementation with offline capabilities
+- Native mobile app development (iOS and Android)
+- Offline-first architecture for adventure planning
+- Shared component library for consistent UI
+- Advanced mapping and GPS navigation features
 
 ## Implementation Guidelines
 
@@ -319,31 +656,67 @@ To implement a user-friendly interface for linking health tracker accounts, cons
 - Added forms and CRUD endpoints for Food, Goal, WaterIntake models
 - Integrated forms and analytics into App.jsx
 - Added backend stubs for external provider integration and AI assistant
+- Merged adventure platform features into core platform vision
+- Enhanced README with comprehensive adventure and fitness platform description
+- **NEW**: Integrated comprehensive Adventure Platform MVP Development Plan
+- **NEW**: Defined 14-week timeline for functional adventure platform MVP
+- **NEW**: Established clear technical architecture for adventure features
+- **NEW**: Added success metrics and resource requirements for MVP
 
-## Next Steps
-- Implement full external provider and AI assistant logic
+## Next Steps (Updated with MVP Focus)
+- **Adventure Platform MVP Implementation (Priority)**
+  - Begin Week 1-2: Project setup and backend foundation for adventure features
+  - Implement trail database integration and GPX file processing
+  - Build trip planning interface with waypoints and elevation profiles
+  - Add offline mapping capabilities and basic GPS navigation features
+  - Integrate weather data and safety features for outdoor activities
+
+- **Mobile Application Development (Weeks 9-12)**
+  - Develop React Native foundation for cross-platform mobile apps
+  - Implement basic trip viewing and planning on mobile
+  - Add GPS location access and basic offline map viewing
+  - Build authentication flow and profile management for mobile
+
+- **Docker & Deployment (Weeks 13-14)**
+  - Complete containerization for adventure platform features
+  - Set up Docker Compose for full self-hosted deployment
+  - Create installation documentation and deployment tools
+  - Implement basic backup scripts and environment configuration
+
+- Continue parallel development of fitness features
+  - Implement full external provider and AI assistant logic
   - Integrate OAuth and data sync for Fitbit, Apple Health, Google Fit, etc.
   - Build AI assistant backend (OpenAI, local LLM, etc.) and frontend chat UI
   - Enable contextual suggestions, progress feedback, and smart goal setting
+
 - Expand admin dashboard features
   - Add user management (edit, deactivate, role assignment)
   - Add advanced analytics (trend charts, goal completion rates, engagement)
   - Add export/reporting tools
+
 - Enhance frontend UI/UX
   - Improve navigation, accessibility, and mobile responsiveness
   - Add loading states, error boundaries, and notifications
   - Refine dashboard layout and visualizations
+
 - Continue security and documentation improvements
   - Strengthen authentication, authorization, and audit logging
   - Update privacy, GDPR, and integration documentation
   - Add API usage and admin guides
 
 # Comments for further development:
-- External provider integration should support modular addition of new providers and robust error handling.
-- AI assistant should be extensible for new features (nutrition, exercise, motivation) and privacy-aware.
-- Admin features should include bulk actions, audit trails, and permission management.
-- UI/UX improvements should be user-tested and accessibility-compliant.
-- Security should be regularly reviewed and penetration-tested.
-- Documentation should be kept up-to-date with every major feature release.
+- **MVP-First Approach**: Prioritize adventure platform MVP completion in 14 weeks before expanding advanced features
+- **Technical Architecture**: MVP uses proven stack (Node.js, React, PostgreSQL) for reliable foundation
+- **Feature Scope Management**: Clearly defined what's in/out of MVP to prevent scope creep
+- Adventure platform features should integrate seamlessly with existing fitness tracking
+- Trail database integration should support multiple data sources (AllTrails, Komoot, etc.)
+- Mobile apps should prioritize offline functionality for remote adventure areas
+- External provider integration should support modular addition of new providers and robust error handling
+- AI assistant should be extensible for adventure planning, nutrition, exercise, and motivation features
+- Admin features should include bulk actions, audit trails, and permission management
+- UI/UX improvements should be user-tested and accessibility-compliant
+- Security should be regularly reviewed and penetration-tested for location data privacy
+- Documentation should be kept up-to-date with every major feature release
+- **Post-MVP Development**: Focus on user feedback and community building before adding complex features
 
 This roadmap will be regularly reviewed and updated as development progresses and new requirements emerge.
