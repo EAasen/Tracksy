@@ -7,7 +7,20 @@ const winston = require('winston');
 const { OAuth2Client } = require('google-auth-library');
 const app = express();
 const port = process.env.PORT || 3000;
-const { User, ActivityLog, HealthMetrics, ProviderToken } = require('./config/database');
+const { 
+  User, 
+  ActivityLog, 
+  HealthMetrics, 
+  Food,
+  Meal,
+  CustomFood,
+  Measurement,
+  Goal,
+  WaterIntake,
+  FamilyAccess,
+  Report,
+  ProviderToken 
+} = require('./config/database');
 const axios = require('axios');
 
 // Middleware to parse incoming request bodies
