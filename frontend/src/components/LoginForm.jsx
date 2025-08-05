@@ -43,6 +43,29 @@ const LoginForm = ({ onLogin, loading, error }) => {
       >
         {loading ? 'Logging in...' : 'Login'}
       </button>
+      <div className="mt-6">
+        <button
+          type="button"
+          className="w-full p-2 bg-red-500 text-white rounded hover:bg-red-600 mb-2"
+          onClick={() => window.location.href = '/auth/google'}
+        >
+          Login with Google
+        </button>
+        <button
+          type="button"
+          className="w-full p-2 bg-blue-700 text-white rounded hover:bg-blue-800 mb-2"
+          onClick={() => window.location.href = '/auth/facebook'}
+        >
+          Login with Facebook
+        </button>
+        <button
+          type="button"
+          className="w-full p-2 bg-black text-white rounded hover:bg-gray-800"
+          onClick={() => window.location.href = '/auth/apple'}
+        >
+          Login with Apple
+        </button>
+      </div>
     </form>
   );
 };

@@ -12,6 +12,9 @@ const initialState = {
   loading: false,
   error: null,
   stats: null,
+  activityLogs: [],
+  healthMetrics: [],
+  status: 'idle',
 };
 
 // Sample data for development (will be replaced with API calls in production)
@@ -70,6 +73,18 @@ export const addActivity = createAsyncThunk(
     }
   }
 );
+
+export const fetchActivityLogs = createAsyncThunk('activity/fetchLogs', async (_, { getState }) => {
+  const token = getState().auth.token;
+  const res = await axios.get('/api/activitylog', { headers: { Authorization: `Bearer ${token}` } });
+  return res.data;
+});
+
+export const fetchHealthMetrics = createAsyncThunk('activity/fetchMetrics', async (_, { getState }) => {
+  const token = getState().auth.token;
+  const res = await axios.get('/api/healthmetrics', { headers: { Authorization: `Bearer ${token}` } });
+  return res.data;
+});
 
 // Slice
 const activitySlice = createSlice({
@@ -147,6 +162,16 @@ const activitySlice = createSlice({
         state.filteredActivities = state.activeFilters.type || state.activeFilters.dateRange
           ? state.filteredActivities // Keep current filtered results
           : [...state.activities]; // Reset to show all
+      })
+      
+      // Fetch activity logs
+      .addCase(fetchActivityLogs.fulfilled, (state, action) => {
+        state.activityLogs = action.payload;
+      })
+      
+      // Fetch health metrics
+      .addCase(fetchHealthMetrics.fulfilled, (state, action) => {
+        state.healthMetrics = action.payload;
       });
   },
 });

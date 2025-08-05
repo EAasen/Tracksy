@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Admin analytics dashboard and API endpoint
+- FoodForm, GoalForm, WaterIntakeForm components for user data entry
+- Backend stubs for external provider integration and AI assistant
+
+### Changed
+- App.jsx now includes Food, Goal, WaterIntake forms and admin analytics
+- Backend/app.js updated with analytics, integration, and AI endpoints
+
+### Fixed
+- Improved error handling in new forms and endpoints
 
 ## [0.2.0] - 2025-05-23
 

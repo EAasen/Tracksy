@@ -6,6 +6,18 @@ import SearchBar from './components/SearchBar';
 import PrefetchManager from './components/PrefetchManager';
 import ErrorBoundary from './components/ErrorBoundary';
 import 'tailwindcss/tailwind.css';
+import RegisterForm from './components/RegisterForm';
+import PasswordResetForm from './components/PasswordResetForm';
+import ActivityDataDisplay from './components/ActivityDataDisplay';
+import HealthMetricsChart from './components/HealthMetricsChart';
+import ActivityLogForm from './components/ActivityLogForm';
+import HealthMetricsForm from './components/HealthMetricsForm';
+import FoodForm from './components/FoodForm';
+import GoalForm from './components/GoalForm';
+import WaterIntakeForm from './components/WaterIntakeForm';
+import AdminAnalytics from './components/AdminAnalytics';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchActivityLogs, fetchHealthMetrics } from './store/slices/activitySlice';
 
 // Lazy loaded components
 const Dashboard = lazy(() => import('./components/Dashboard'));
@@ -23,6 +35,8 @@ const LoadingFallback = () => (
 );
 
 function App() {
+  const dispatch = useDispatch();
+  const { activityLogs, healthMetrics } = useSelector(state => state.activity);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -38,6 +52,33 @@ function App() {
       fetchUserProfile();
     } catch (err) {
       setError('Login failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async ({ username, email, password, role }) => {
+    setLoading(true);
+    try {
+      const response = await axios.post('/signup', { username, email, password, role });
+      const { token } = response.data;
+      localStorage.setItem('token', token);
+      setIsLoggedIn(true);
+      fetchUserProfile();
+    } catch (err) {
+      setError('Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async (email) => {
+    setLoading(true);
+    try {
+      await axios.post('/password-recovery', { email });
+      setError('Password reset email sent.');
+    } catch (err) {
+      setError('Failed to send password reset email.');
     } finally {
       setLoading(false);
     }
@@ -65,10 +106,16 @@ function App() {
       fetchUserProfile();
     }
   }, []);
+
+  useEffect(() => {
+    dispatch(fetchActivityLogs());
+    dispatch(fetchHealthMetrics());
+  }, [dispatch]);
+
   return (
     <Router>
       <div className="App min-h-screen bg-gray-50">
-        <NavigationMenu />
+        <NavigationMenu userRole={userProfile?.role} />
         {/* Add PrefetchManager component to handle component prefetching */}
         {isLoggedIn && <PrefetchManager />}
         <div className="container mx-auto px-4 py-6">
@@ -78,23 +125,19 @@ function App() {
               <div className="flex items-center">
                 <SearchBar />
                 <div className="ml-4 text-sm font-medium text-gray-600">
-                  Welcome, {userProfile?.username || 'User'}
+                  Welcome, {userProfile?.username || 'User'} ({userProfile?.role || 'user'})
                 </div>
               </div>
             )}
           </div>
-
           {/* Main Navigation */}
           {isLoggedIn && (
             <div className="mb-6">
               <nav className="flex space-x-4">
-                <Link 
-                  to="/dashboard" 
-                  className={`px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200 
-                    ${window.location.pathname === '/dashboard' ? 'bg-blue-500 text-white' : ''}`}
-                >
-                  Dashboard
-                </Link>
+                <Link to="/dashboard" className={`px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200 ${window.location.pathname === '/dashboard' ? 'bg-blue-500 text-white' : ''}`}>Dashboard</Link>
+                {userProfile?.role === 'admin' && (
+                  <Link to="/admin/dashboard" className={`px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200 ${window.location.pathname === '/admin/dashboard' ? 'bg-red-500 text-white' : ''}`}>Admin</Link>
+                )}
                 <Link 
                   to="/integrations" 
                   className={`px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200
@@ -128,25 +171,47 @@ function App() {
           )}
 
           {/* Main Content */}
-          <div className="main-content bg-white rounded-lg shadow-sm p-6">            {isLoggedIn ? (
-              <ErrorBoundary>
-                <Suspense fallback={<LoadingFallback />}>
-                  <Routes>
-                    <Route path="/dashboard" element={<Dashboard user={userProfile} />} />
-                    <Route path="/integrations" element={<IntegrationManagement />} />
-                    <Route path="/profile" element={<UserProfile user={userProfile || {}} />} />
-                    <Route path="/notifications" element={<Notifications notifications={[]} />} />
-                    <Route path="/settings" element={<Settings />} />
-                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                    <Route path="*" element={<Navigate to="/dashboard" replace />} />
-                  </Routes>
-                </Suspense>
-              </ErrorBoundary>
-            ) : (
-              <LoginForm onLogin={handleLogin} loading={loading} error={error} />
+          <div className="main-content bg-white rounded-lg shadow-sm p-6">
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingFallback />}>
+                <Routes>
+                  <Route path="/dashboard" element={<Dashboard user={userProfile} />} />
+                  <Route path="/integrations" element={<IntegrationManagement />} />
+                  <Route path="/profile" element={<UserProfile user={userProfile || {}} />} />
+                  <Route path="/notifications" element={<Notifications notifications={[]} />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/register" element={<RegisterForm onRegister={handleRegister} loading={loading} error={error} />} />
+                  <Route path="/password-reset" element={<PasswordResetForm onReset={handlePasswordReset} loading={loading} error={error} />} />
+                  <Route path="/admin/dashboard" element={userProfile?.role === 'admin' ? <div>Admin Dashboard</div> : <Navigate to="/dashboard" replace />} />
+                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                </Routes>
+              </Suspense>
+            </ErrorBoundary>
+            {!isLoggedIn && (
+              <>
+                <LoginForm onLogin={handleLogin} loading={loading} error={error} />
+                <div className="mt-4 flex space-x-4">
+                  <Link to="/register" className="text-blue-500 hover:underline">Register</Link>
+                  <Link to="/password-reset" className="text-yellow-500 hover:underline">Forgot Password?</Link>
+                </div>
+              </>
             )}
           </div>
         </div>
+        {isLoggedIn && (
+          <div className="activity-health-metrics bg-white rounded-lg shadow-sm p-6 mt-6">
+            <h2 className="text-xl font-semibold mb-4">Activity Logs & Health Metrics</h2>
+            <ActivityLogForm />
+            <ActivityDataDisplay data={activityLogs} />
+            <HealthMetricsForm />
+            <HealthMetricsChart data={healthMetrics} />
+            <FoodForm />
+            <GoalForm />
+            <WaterIntakeForm />
+            <AdminAnalytics />
+          </div>
+        )}
       </div>
     </Router>
   );
