@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cross-env NODE_ENV=test mocha --require chai/register-should --timeout 10000 'test/**/*.test.js'"
   },
   "author": "Eirik Aasen",
   "license": "MIT",
@@ -17,11 +17,15 @@
     "express-rate-limit": "^5.5.1",
     "winston": "^3.3.3",
     "google-auth-library": "^7.0.2",
-    "mongoose": "^5.12.3"
+  "mongoose": "^5.12.3",
+  "joi": "^17.13.1"
   },
   "devDependencies": {
     "mocha": "^8.3.2",
     "chai": "^4.3.4",
-    "sinon": "^10.0.0"
+    "sinon": "^10.0.0",
+  "supertest": "^6.3.3",
+    "cross-env": "^7.0.3"
+  ,"mongodb-memory-server": "^10.1.4"
   }
 }

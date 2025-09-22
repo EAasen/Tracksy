@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true, index: true },
   password: { type: String, required: true },
   email: { type: String, required: true, unique: true, index: true },
+  emailVerified: { type: Boolean, default: false },
   googleTokens: { type: Object },
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
   createdAt: { type: Date, default: Date.now },
@@ -205,6 +206,75 @@ const providerTokenSchema = new mongoose.Schema({
 
 const ProviderToken = mongoose.model('ProviderToken', providerTokenSchema);
 
+// General purpose token schema (email verification, password reset, etc.)
+const tokenSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  purpose: { type: String, enum: ['email_verification', 'password_reset', 'refresh'], required: true, index: true },
+  tokenHash: { type: String, required: true },
+  expiresAt: { type: Date, required: true, index: true },
+  consumed: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now }
+});
+
+// Optional automatic TTL index for expired tokens (Mongo will remove after expiry)
+tokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
+const Token = mongoose.model('Token', tokenSchema);
+
+// Route schema (ADR-0002)
+const routeSchema = new mongoose.Schema({
+  name: { type: String, required: true, minlength: 3, maxlength: 120, index: true },
+  description: { type: String, maxlength: 2000 },
+  geometry: {
+    type: { type: String, enum: ['LineString'], required: true },
+    coordinates: { type: [[Number]], required: true }
+  },
+  distanceMeters: { type: Number, required: true },
+  bbox: { type: [Number], validate: v => !v || v.length === 4 },
+  center: {
+    type: { type: String, enum: ['Point'], default: 'Point' },
+    coordinates: { type: [Number], default: void 0 }
+  },
+  tags: { type: [String], index: true, default: [] },
+  visibility: { type: String, enum: ['public','private'], default: 'private', index: true },
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  elevationGainMeters: { type: Number, default: null },
+  deletedAt: { type: Date, default: null },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
+routeSchema.index({ geometry: '2dsphere' });
+routeSchema.pre('save', function(next) { this.updatedAt = new Date(); next(); });
+
+const Route = mongoose.model('Route', routeSchema);
+
+// Activity schema (Issue #3)
+const activitySchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  routeId: { type: mongoose.Schema.Types.ObjectId, ref: 'Route', required: false, index: true },
+  type: { type: String, enum: ['run','hike','cycle','walk','swim','other'], required: true, index: true },
+  startTime: { type: Date, required: true, index: true },
+  endTime: { type: Date, required: true },
+  durationSeconds: { type: Number, required: true },
+  distanceMeters: { type: Number, required: false },
+  calories: { type: Number },
+  notes: { type: String, maxlength: 2000 },
+  metrics: {
+    avgPace: { type: Number }, // seconds per km
+    avgHr: { type: Number },
+    maxHr: { type: Number },
+    elevationGainMeters: { type: Number }
+  },
+  deletedAt: { type: Date, default: null },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
+activitySchema.pre('save', function(next) { this.updatedAt = new Date(); next(); });
+
+const Activity = mongoose.model('Activity', activitySchema);
+
 module.exports = {
   db,
   User,
@@ -219,4 +289,7 @@ module.exports = {
   FamilyAccess,
   Report,
   ProviderToken,
+  Token,
+  Route,
+  Activity,
 };
