@@ -245,6 +245,8 @@ const routeSchema = new mongoose.Schema({
 });
 
 routeSchema.index({ geometry: '2dsphere' });
+// Performance index: query patterns often filter by creator + visibility
+routeSchema.index({ createdBy: 1, visibility: 1 }); // (#69) compound index to speed listing queries
 routeSchema.pre('save', function(next) { this.updatedAt = new Date(); next(); });
 
 const Route = mongoose.model('Route', routeSchema);
@@ -271,6 +273,9 @@ const activitySchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
+// Performance indexes (#69)
+activitySchema.index({ userId: 1, startTime: -1 }); // Common listing by user + time desc
+activitySchema.index({ type: 1 }); // Filtering by type
 activitySchema.pre('save', function(next) { this.updatedAt = new Date(); next(); });
 
 const Activity = mongoose.model('Activity', activitySchema);

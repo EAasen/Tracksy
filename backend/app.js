@@ -25,6 +25,9 @@ const {
   Activity
 } = require('./config/database');
 const { computeDistance, computeBbox, computeCenter } = require('./utils/geo');
+const multer = require('multer');
+const { parseGpx } = require('./utils/gpx/parser');
+const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 const Joi = require('joi');
 const axios = require('axios');
@@ -34,14 +37,51 @@ const loggerTransports = [new winston.transports.Console()];
 if (process.env.NODE_ENV !== 'test') {
   loggerTransports.push(new winston.transports.File({ filename: 'logs/app.log' }));
 }
+const useJsonLogs = (process.env.LOG_FORMAT || '').toLowerCase() === 'json';
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.printf(({ timestamp, level, message }) => `${timestamp} ${level}: ${message}`)
-  ),
+  format: useJsonLogs
+    ? winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.printf(({ timestamp, level, message, requestId, meta }) => {
+          const base = { ts: timestamp, level, msg: message };
+          if (requestId) base.requestId = requestId;
+          if (meta && Object.keys(meta).length) base.meta = meta;
+          return JSON.stringify(base);
+        })
+      )
+    : winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.printf(({ timestamp, level, message, requestId }) => `${timestamp} ${level}${requestId?` [${requestId}]`:''}: ${message}`)
+      ),
   transports: loggerTransports
 });
+
+// Request ID + timing middleware (Issue #66)
+app.use((req, res, next) => {
+  const requestId = uuidv4();
+  req.requestId = requestId;
+  res.setHeader('X-Request-Id', requestId);
+  const startHr = process.hrtime.bigint();
+  logger.info(`REQ_START ${req.method} ${req.originalUrl}`, { requestId });
+  res.on('finish', () => {
+    const durMs = Number(process.hrtime.bigint() - startHr) / 1e6;
+    logger.info(`REQ_END ${req.method} ${req.originalUrl} ${res.statusCode} ${durMs.toFixed(1)}ms`, { requestId, meta: { status: res.statusCode, durationMs: durMs } });
+  });
+  next();
+});
+
+// Simple in-memory cache (TTL seconds) for analytics/dashboard endpoints
+const cacheStore = new Map();
+function cacheGet(key) {
+  const entry = cacheStore.get(key);
+  if (!entry) return null;
+  if (entry.expires < Date.now()) { cacheStore.delete(key); return null; }
+  return entry.value;
+}
+function cacheSet(key, value, ttlSeconds) {
+  cacheStore.set(key, { value, expires: Date.now() + ttlSeconds * 1000 });
+}
 
 // Middleware to parse incoming request bodies
 app.use(bodyParser.json());
@@ -63,6 +103,16 @@ const limiter = rateLimit({
   max: 100, // limit each IP to 100 requests per windowMs
 });
 app.use(limiter);
+
+// Multer setup for GPX uploads (memory storage only; size limit ~5MB)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (!file.originalname.toLowerCase().endsWith('.gpx')) return cb(new Error('INVALID_EXTENSION'));
+    cb(null, true);
+  }
+});
 
 // Auth specific rate limiters
 const authLimiter = rateLimit({ windowMs: 15*60*1000, max: 20 });
@@ -627,6 +677,171 @@ app.delete('/activities/:id', authenticate, async (req, res) => {
     res.json({ id: activity._id, deleted: true });
   } catch (err) {
     logger.error(`Activity delete error: ${err.message}`);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GPX Upload (Issue #65)
+app.post('/gpx/upload', authenticate, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'NO_FILE' });
+    const { buffer, originalname } = req.file;
+    let parsed;
+    try {
+      parsed = await parseGpx(buffer);
+    } catch (e) {
+      const code = e.code || 'PARSE_ERROR';
+      return res.status(400).json({ error: code });
+    }
+    const { points, checksum } = parsed;
+    // Idempotency: check if an activity already exists with this checksum (we will store on activity notes metadata for now)
+    const existing = await Activity.findOne({ 'metrics.gpxChecksum': checksum, userId: req.user.id, deletedAt: null });
+    if (existing) return res.status(409).json({ error: 'DUPLICATE_GPX', activityId: existing._id });
+    const coords = points.map(p => [p.lon, p.lat]);
+    const distance = computeDistance(coords);
+    if (distance < 1) return res.status(400).json({ error: 'ROUTE_TOO_SHORT' });
+    const bbox = computeBbox(coords);
+    const center = computeCenter(bbox);
+    const startTime = points[0].time || new Date();
+    const endTime = points[points.length - 1].time || new Date();
+    const durationSeconds = Math.max(1, Math.round((endTime - startTime) / 1000));
+    // Create Route
+    const route = await Route.create({
+      name: originalname.replace(/\.gpx$/i, ''),
+      description: 'Imported from GPX',
+      visibility: 'private',
+      tags: [],
+      geometry: { type: 'LineString', coordinates: coords },
+      distanceMeters: Math.round(distance * 100) / 100,
+      bbox,
+      center: { type: 'Point', coordinates: center },
+      createdBy: req.user.id,
+      elevationGainMeters: null
+    });
+    // Create Activity referencing route
+    const activity = await Activity.create({
+      userId: req.user.id,
+      routeId: route._id,
+      type: 'other',
+      startTime,
+      endTime,
+      durationSeconds,
+      distanceMeters: route.distanceMeters,
+      metrics: { gpxChecksum: checksum }
+    });
+    res.status(201).json({ routeId: route._id, activityId: activity._id });
+  } catch (err) {
+    if (err.message === 'INVALID_EXTENSION') return res.status(400).json({ error: 'INVALID_EXTENSION' });
+    logger.error(`GPX upload error: ${err.message}`);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Analytics Summary Endpoint (Issue #67)
+app.get('/analytics/summary', authenticate, async (req, res) => {
+  try {
+    const range = (req.query.range || 'weekly').toLowerCase();
+    const valid = ['daily','weekly','monthly'];
+    if (!valid.includes(range)) return res.status(400).json({ error: 'INVALID_RANGE' });
+    const cacheKey = `analytics:${req.user.id}:${range}`;
+    const cached = cacheGet(cacheKey);
+    if (cached) return res.json({ cached: true, ...cached });
+    const now = new Date();
+    let start;
+    if (range === 'daily') {
+      start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    } else if (range === 'weekly') {
+      const day = now.getUTCDay();
+      const diff = (day + 6) % 7; // Monday as start
+      const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+      d.setUTCDate(d.getUTCDate() - diff);
+      start = d;
+    } else { // monthly
+      start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+    }
+    const match = { userId: req.user.id, deletedAt: null, startTime: { $gte: start, $lte: now } };
+    const pipeline = [
+      { $match: match },
+      { $group: {
+          _id: '$type',
+          totalDistance: { $sum: { $ifNull: ['$distanceMeters', 0] } },
+          totalDuration: { $sum: '$durationSeconds' },
+          count: { $sum: 1 }
+      } }
+    ];
+    const byType = await Activity.aggregate(pipeline);
+    // totals
+    let totalDistance = 0, totalDuration = 0, totalCount = 0;
+    for (const t of byType) { totalDistance += t.totalDistance; totalDuration += t.totalDuration; totalCount += t.count; }
+    // top routes by usage
+    const topRoutesAgg = await Activity.aggregate([
+      { $match: match },
+      { $group: { _id: '$routeId', count: { $sum: 1 }, distance: { $sum: { $ifNull: ['$distanceMeters', 0] } } } },
+      { $sort: { count: -1 } },
+      { $limit: 3 }
+    ]);
+    const summary = {
+      range,
+      start: start.toISOString(),
+      end: now.toISOString(),
+      totalDistance,
+      totalDuration,
+      totalCount,
+      byType,
+      topRoutes: topRoutesAgg
+    };
+    cacheSet(cacheKey, summary, 60); // 60s TTL
+    res.json(summary);
+  } catch (err) {
+    logger.error(`Analytics summary error: ${err.message}`);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Dashboard Metrics Endpoint (Issue #68)
+app.get('/dashboard/metrics', authenticate, async (req, res) => {
+  try {
+    const cacheKey = `dashboard:${req.user.id}`;
+    const cached = cacheGet(cacheKey);
+    if (cached) return res.json({ cached: true, ...cached });
+    const now = new Date();
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 3600 * 1000);
+    const recentMatch = { userId: req.user.id, deletedAt: null, startTime: { $gte: sevenDaysAgo, $lte: now } };
+    const recentAgg = await Activity.aggregate([
+      { $match: recentMatch },
+      { $group: { _id: null, distance: { $sum: { $ifNull: ['$distanceMeters', 0] } }, duration: { $sum: '$durationSeconds' }, count: { $sum: 1 } } }
+    ]);
+    const distance = recentAgg[0]?.distance || 0;
+    const duration = recentAgg[0]?.duration || 0;
+    const routeCount = await Route.countDocuments({ createdBy: req.user.id, deletedAt: null });
+    const activityCount = await Activity.countDocuments({ userId: req.user.id, deletedAt: null });
+    // Average pace (seconds per km) from activities with distance & duration
+    const paceAgg = await Activity.aggregate([
+      { $match: { userId: req.user.id, deletedAt: null, distanceMeters: { $gt: 0 }, durationSeconds: { $gt: 0 } } },
+      { $project: { pace: { $divide: ['$durationSeconds', { $divide: ['$distanceMeters', 1000] }] } } },
+      { $group: { _id: null, avgPace: { $avg: '$pace' }, fastest: { $min: '$pace' } } }
+    ]);
+    const avgPace = paceAgg[0]?.avgPace || null;
+    const fastestPace = paceAgg[0]?.fastest || null;
+    const activeDaysAgg = await Activity.aggregate([
+      { $match: recentMatch },
+      { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$startTime' } } } },
+      { $count: 'days' }
+    ]);
+    const activeDays = activeDaysAgg[0]?.days || 0;
+    const metrics = {
+      last7dDistance: distance,
+      last7dDuration: duration,
+      routeCount,
+      activityCount,
+      avgPace,
+      fastestPaceThisWeek: fastestPace,
+      activeDaysThisWeek: activeDays
+    };
+    cacheSet(cacheKey, metrics, 30); // 30s TTL
+    res.json(metrics);
+  } catch (err) {
+    logger.error(`Dashboard metrics error: ${err.message}`);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
