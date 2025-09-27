@@ -5,18 +5,31 @@ const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
-module.exports = {
-  mode: 'production', // Use this for production builds
-  entry: './src/index.js',
-  output: {
-    path: path.resolve(__dirname, '../dist'),
-    filename: '[name].[contenthash].js',
-    chunkFilename: '[name].[contenthash].chunk.js',
-    publicPath: '/',
-    clean: true
-  },
-  module: {
+module.exports = (env = {}) => {
+  const isDev = process.env.NODE_ENV !== 'production';
+  return {
+    mode: isDev ? 'development' : 'production',
+    entry: './src/index.js',
+    output: {
+      path: path.resolve(__dirname, '../dist'),
+      filename: '[name].[contenthash].js',
+      chunkFilename: '[name].[contenthash].chunk.js',
+      publicPath: '/',
+      clean: true
+    },
+    // Development server configuration (used when running `webpack serve`)
+    devServer: {
+      port: process.env.PORT || 3001,
+      historyApiFallback: true,
+      hot: true,
+      compress: true,
+      static: { directory: path.join(__dirname, 'public') },
+      client: { overlay: true, logging: 'info' },
+      allowedHosts: 'all'
+    },
+    module: {
     rules: [
       {
         test: /\.(js|jsx)$/,
@@ -47,7 +60,7 @@ module.exports = {
       }
     ]
   },
-  optimization: {
+    optimization: {
     minimize: true,
     minimizer: [
       new TerserPlugin({
@@ -100,22 +113,22 @@ module.exports = {
     },
     runtimeChunk: 'single' // Create a single runtime chunk
   },
-  plugins: [
-    // Compress assets with gzip
-    new CompressionPlugin({
-      filename: '[path][base].gz',
-      algorithm: 'gzip',
-      test: /\.(js|css|html|svg)$/,
-      threshold: 10240, // Only compress files > 10kb
-      minRatio: 0.8 // Only compress if compression ratio is better than 0.8
-    }),
-    // Analyze bundle size - set analyzerMode to 'disabled' for CI/CD
-    new BundleAnalyzerPlugin({
-      analyzerMode: process.env.ANALYZE ? 'server' : 'disabled',
-      analyzerPort: 8888,
-    })
-  ],
-  resolve: {
+    plugins: [
+      // React Fast Refresh only in dev
+      ...(isDev ? [new ReactRefreshWebpackPlugin({ overlay: false })] : []),
+      new CompressionPlugin({
+        filename: '[path][base].gz',
+        algorithm: 'gzip',
+        test: /\.(js|css|html|svg)$/,
+        threshold: 10240,
+        minRatio: 0.8
+      }),
+      new BundleAnalyzerPlugin({
+        analyzerMode: process.env.ANALYZE ? 'server' : 'disabled',
+        analyzerPort: 8888,
+      })
+    ],
+    resolve: {
     extensions: ['.js', '.jsx', '.json'],
     alias: {
       // Add aliases for common imports to shorten import paths
@@ -124,10 +137,9 @@ module.exports = {
     }
   },
   // Cache webpack modules
-  cache: {
-    type: 'filesystem',
-    buildDependencies: {
-      config: [__filename]
+    cache: {
+      type: 'filesystem',
+      buildDependencies: { config: [__filename] }
     }
-  }
+  };
 };

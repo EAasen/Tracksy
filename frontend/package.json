@@ -2,31 +2,39 @@
   "name": "tracksy-frontend",
   "version": "1.0.0",
   "description": "Frontend web application for Tracksy",
-  "main": "index.html",  "scripts": {
-    "start": "webpack serve --mode development",
+  "main": "index.html",
+  "scripts": {
+    "start": "webpack serve --env development --progress",
     "build": "webpack --mode production",
     "build:dev": "webpack --mode development",
     "build:analyze": "ANALYZE=true webpack --mode production",
     "serve:dist": "npx serve -s dist",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint src --ext .js,.jsx",
-    "format": "prettier --write 'src/**/*.{js,jsx,css}'"
+    "format": "prettier --write 'src/**/*.{js,jsx,css}'",
+    "security:audit": "npm audit --audit-level=moderate || exit 0",
+    "security:fix": "npm audit fix || exit 0"
   },
   "author": "Eirik Aasen",
-  "license": "MIT",  "dependencies": {
+  "license": "MIT",
+  "dependencies": {
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "chart.js": "^3.7.0",
     "react-chartjs-2": "^4.0.0",
     "react-router-dom": "^6.2.1",
-    "axios": "^0.25.0",
+    "axios": "^1.6.8",
+    "@heroicons/react": "^2.1.5",
     "prop-types": "^15.8.1",
     "@reduxjs/toolkit": "^1.8.0",
     "react-redux": "^7.2.6"
-  },"devDependencies": {
+  },
+  "devDependencies": {
     "webpack": "^5.38.1",
     "webpack-cli": "^4.7.2",
-    "webpack-dev-server": "^3.11.2",
+    "webpack-dev-server": "^5.0.4",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.11",
+    "react-refresh": "^0.14.0",
     "babel-loader": "^8.2.2",
     "@babel/core": "^7.14.3",
     "@babel/preset-env": "^7.14.2",
