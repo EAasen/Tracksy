@@ -39,9 +39,9 @@ jobs:
       - name: Install dependencies (CI)
         run: npm ci
 
-      - name: Production security audit (fail on high)
+      - name: Security audit (prod dependencies, fail on high)
         run: |
-          npm audit --production --audit-level=high || (echo "High severity vulnerabilities found" && exit 1)
+          npm audit --omit=dev --audit-level=high || (echo "High severity vulnerabilities found" && exit 1)
 
       - name: List outdated (informational)
         run: |
