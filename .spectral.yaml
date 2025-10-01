@@ -1,0 +1,11 @@
+extends: spectral:oas
+rules:
+  info-contact: off
+  info-description: warn
+  operation-description: warn
+  operation-operationId: off
+  operation-tag-defined: warn
+  tag-description: off
+  no-$ref-siblings: warn
+  operation-success-response: warn
+  oas3-unused-component: off

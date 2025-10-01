@@ -235,14 +235,30 @@ npm run db:seed
 
 ### API Documentation
 
-API documentation is available at `/api/docs` when running the development server.
+API documentation (OpenAPI 3) is available at `/api/docs` (Swagger UI) and the raw spec at `/api/openapi.yaml` when running the backend in development mode.
 
-Key endpoints:
-- `GET /api/trails` - Browse trails and routes
-- `POST /api/trips` - Create new trip plans
-- `GET /api/activities` - Retrieve fitness activities
-- `POST /api/health-metrics` - Log health data
-- `GET /api/users/profile` - User profile management
+### Versioning Strategy
+The platform is introducing semantic versioning at the HTTP path level. Current endpoints exist under legacy `/api/*` paths and will gradually be migrated to `/api/v1/*`.
+
+Principles:
+1. Backward compatibility: Existing `/api/*` routes remain functional until a full v2 plan is published.
+2. Header signaling: All responses include `API-Version: 1`.
+3. Soft deprecation: Future deprecations will use `Deprecation` and `Sunset` headers before removal.
+4. Documentation-first: New or refactored endpoints must be defined in `backend/openapi.yaml` before implementation.
+
+### Current Documented Endpoints (Subset)
+The initial spec includes authentication (`/signup`, `/login`), activity logs (`/api/activitylog`), health metrics (`/api/healthmetrics`), and admin analytics (`/api/admin/analytics`). Additional endpoints will be added iteratively.
+
+### Adding / Updating Endpoints
+1. Update `backend/openapi.yaml` with the new path, schema references, and tags.
+2. (Future) Run `npm run spec:lint` after Spectral integration is completed.
+3. Implement or adjust the Express route under `/api/v1`.
+4. Verify via Swagger UI at `/api/docs`.
+
+### Planned Enhancements
+- Move existing `/api/*` routes into modular routers under `backend/routes/`.
+- Introduce request/response validation middleware based on the OpenAPI schema.
+- Add Spectral lint command (currently placeholder in scripts).
 
 ### Development Workflow
 1. Fork the repository

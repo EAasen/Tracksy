@@ -1,0 +1,156 @@
+openapi: 3.0.3
+info:
+  title: Tracksy API
+  version: 1.0.0
+  description: |
+    Initial OpenAPI specification (skeleton) for Tracksy API.
+    Current production endpoints are still mounted under /api/*.
+    New evolution will occur under /api/v1/*.
+servers:
+  - url: http://localhost:3000
+    description: Local development
+tags:
+  - name: auth
+  - name: activity
+  - name: health
+  - name: admin
+  - name: integrations
+paths:
+  /signup:
+    post:
+      tags: [auth]
+      summary: Create a new user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '500': { description: Internal server error }
+  /login:
+    post:
+      tags: [auth]
+      summary: Authenticate user and receive JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401': { description: Invalid credentials }
+  /api/activitylog:
+    get:
+      tags: [activity]
+      summary: List activity logs for current user
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1 }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100 }
+        - in: query
+          name: type
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of activity logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActivityLog'
+        '401': { description: Unauthorized }
+  /api/healthmetrics:
+    get:
+      tags: [health]
+      summary: List health metrics for current user
+      responses:
+        '200':
+          description: List of health metrics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HealthMetric'
+        '401': { description: Unauthorized }
+  /api/admin/analytics:
+    get:
+      tags: [admin]
+      summary: Platform analytics summary
+      responses:
+        '200':
+          description: Analytics summary object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAnalytics'
+        '403': { description: Forbidden }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    SignupRequest:
+      type: object
+      required: [username, password, email]
+      properties:
+        username: { type: string }
+        password: { type: string, format: password }
+        email: { type: string, format: email }
+        role: { type: string }
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string }
+        password: { type: string, format: password }
+    AuthResponse:
+      type: object
+      properties:
+        token: { type: string }
+    ActivityLog:
+      type: object
+      properties:
+        _id: { type: string }
+        userId: { type: string }
+        activityType: { type: string }
+        duration: { type: number }
+        deleted: { type: boolean }
+    HealthMetric:
+      type: object
+      properties:
+        _id: { type: string }
+        userId: { type: string }
+        metricType: { type: string }
+        value: { type: number }
+        deleted: { type: boolean }
+    AdminAnalytics:
+      type: object
+      properties:
+        totalUsers: { type: integer }
+        totalActivities: { type: integer }
+        avgDuration: { type: number }
+        popularActivity: { type: string }
+        activeGoals: { type: integer }
+        avgWaterIntake: { type: number }
+security:
+  - bearerAuth: []

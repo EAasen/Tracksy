@@ -43,6 +43,15 @@ This document outlines the high-level development roadmap for Tracksy, an Open-S
 
 ## 🔴 High Priority
 
+### Technical Infrastructure (Immediate - Weeks 1-2)
+**Critical fixes required before development**
+
+- **#59** - [Security: Upgrade Outdated Dependencies](https://github.com/EAasen/Tracksy/issues/59) *(3-4 days)*
+- **Database Architecture Consistency Fix** - Fix MongoDB/PostgreSQL mismatch *(2-3 days)*
+- **#60** - [Mobile: Responsive Design & Touch Interface Implementation](https://github.com/EAasen/Tracksy/issues/60) *(7 weeks)*
+- **#61** - [API: Scalability & Documentation Architecture](https://github.com/EAasen/Tracksy/issues/61) *(5 weeks)*
+- **#62** - [Performance: Frontend Optimization & Monitoring](https://github.com/EAasen/Tracksy/issues/62) *(5 weeks)*
+
 ### High Priority Development Areas
 
 **All high-priority items have been converted to GitHub issues for detailed tracking:**
@@ -333,8 +342,6 @@ This document outlines the high-level development roadmap for Tracksy, an Open-S
 ---
 
 This roadmap will be reviewed and updated monthly based on development progress, user feedback, and changing requirements.
-
-**Status:** Implementation tasks tracked in GitHub Issues #1-35
 
 ## Table of Contents
 - [Adventure Platform MVP Vision](#adventure-platform-mvp-vision)
