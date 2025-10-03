@@ -1,18 +1,44 @@
 const mongoose = require('mongoose');
 
-const dbUrl = process.env.DATABASE_URL || 'mongodb://localhost:27017/tracksy';
+// Enhanced MongoDB connection with better error handling and options
+let dbUrl = process.env.DATABASE_URL || 'mongodb://localhost:27017/tracksy';
+// Force IPv4 loopback to avoid potential IPv6 (::1) refusal when MongoDB only listens on 127.0.0.1
+dbUrl = dbUrl.replace('localhost', '127.0.0.1');
 
-mongoose.connect(dbUrl, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  poolSize: 10, // Database connection pooling
-});
+// Connection options optimized for fitness app with time-series data (Mongoose 8 compatible)
+const mongooseOptions = {
+  maxPoolSize: 10, // Maintain up to 10 socket connections
+  serverSelectionTimeoutMS: 5000, // Fail fast if server not reachable
+  socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+  // bufferCommands false ensures immediate errors instead of silent buffering when disconnected
+  bufferCommands: false,
+};
+
+// Connect to MongoDB with enhanced error handling
+mongoose.set('strictQuery', true); // explicit for query filtering safety
+
+mongoose.connect(dbUrl, mongooseOptions);
 
 const db = mongoose.connection;
 
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+// Enhanced error handling and logging
+db.on('error', (error) => {
+  console.error('MongoDB connection error:', error);
+  process.exit(1);
+});
+
+db.on('disconnected', () => {
+  console.warn('MongoDB disconnected. Attempting to reconnect...');
+});
+
+db.on('reconnected', () => {
+  console.log('MongoDB reconnected successfully');
+});
+
 db.once('open', () => {
-  console.log('Connected to MongoDB');
+  console.log('✅ Connected to MongoDB successfully');
+  console.log(`Database: ${db.name}`);
+  console.log(`Host: ${db.host}:${db.port}`);
 });
 
 // User schema and model

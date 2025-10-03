@@ -23,6 +23,9 @@ jspm_packages/
 # Optional REPL history
 .node_repl_history
 
+# Build output (frontend bundle)
+dist/
+
 # dotenv environment variables file
 .env
 

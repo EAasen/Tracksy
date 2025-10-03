@@ -343,6 +343,36 @@ This document outlines the high-level development roadmap for Tracksy, an Open-S
 
 This roadmap will be reviewed and updated monthly based on development progress, user feedback, and changing requirements.
 
+---
+
+## 🔐 Post-Security Follow-ups (Backlog)
+Following completion of **#59** (dependency/security hardening), a focused set of incremental improvements has been identified to strengthen operational readiness and observability. These will be tracked under a new issue: **Security & Observability Follow-ups** (pending issue number assignment).
+
+Planned tasks:
+- Backend health endpoint + Docker healthcheck
+- README workflow & dependency badges
+- Bundle size advisory thresholds + stats workflow enhancement
+- OpenAPI lint (Spectral) config stub for upcoming API spec (#61)
+- Dependency management strategy note (Dependabot vs Renovate)
+
+See: `docs/issue-security-followups.md` for full details and acceptance criteria.
+
+### 🌐 API Documentation & Versioning Follow-ups (Backlog)
+With the initial `/api/v1` and OpenAPI scaffold in place, the following incremental tasks are staged as discrete issues (to be created on GitHub):
+
+- Flesh Out OpenAPI Paths & Schemas (`docs/issues/issue-api-spec-paths.md`)
+- Add Spectral Lint CI (`docs/issues/issue-api-spectral-ci.md`)
+- Implement /healthz Endpoint & Spec (`docs/issues/issue-api-health-endpoint.md`)
+- Standardize API Error Response Format (`docs/issues/issue-api-error-standardization.md`)
+- Header-Based API Version Negotiation (`docs/issues/issue-api-version-negotiation.md`)
+- Minimal API Versioning & Docs Tests (`docs/issues/issue-api-tests-minimal.md`)
+- Generate Typed Client from OpenAPI (`docs/issues/issue-api-typed-client.md`)
+- Add x-changelog Extensions to OpenAPI (`docs/issues/issue-api-changelog-extensions.md`)
+- Modularize OpenAPI Spec (`docs/issues/issue-api-modularize-spec.md`)
+
+These can be prioritized based on risk reduction (error standardization, health endpoint) vs productivity (typed client) and governance (Spectral CI, modularization).
+
+
 ## Table of Contents
 - [Adventure Platform MVP Vision](#adventure-platform-mvp-vision)
 - [Development Phases Overview](#development-phases-overview)

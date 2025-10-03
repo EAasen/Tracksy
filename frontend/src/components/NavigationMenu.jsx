@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MenuIcon, XIcon } from '@heroicons/react/outline';
+// Updated heroicons import for v2 structure
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import 'tailwindcss/tailwind.css';
 
 const NavigationMenu = () => {
@@ -16,7 +17,7 @@ const NavigationMenu = () => {
         <div className="text-white text-2xl font-bold">Tracksy</div>
         <div className="md:hidden">
           <button onClick={toggleMenu} className="text-white focus:outline-none">
-            {isOpen ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
+            {isOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
           </button>
         </div>
         <div className={`md:flex ${isOpen ? 'block' : 'hidden'} w-full md:w-auto`}>
