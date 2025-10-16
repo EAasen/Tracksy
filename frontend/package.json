@@ -34,7 +34,7 @@
     "webpack-cli": "^4.7.2",
     "webpack-dev-server": "^5.0.4",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.11",
-    "react-refresh": "^0.14.0",
+    "react-refresh": "^0.18.0",
     "babel-loader": "^8.2.2",
     "@babel/core": "^7.14.3",
     "@babel/preset-env": "^7.14.2",
