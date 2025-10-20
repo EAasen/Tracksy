@@ -104,10 +104,10 @@ Edit `.env` file with your settings:
 DOMAIN=localhost:3000
 SECRET_KEY=your-secret-key-here
 
-# Database
-POSTGRES_DB=tracksy_platform
-POSTGRES_USER=tracksy
-POSTGRES_PASSWORD=your-secure-password
+# Database (MongoDB)
+DATABASE_URL=mongodb://localhost:27017/tracksy
+# For Docker: mongodb://mongo:27017/tracksy
+# For production with auth: mongodb://username:password@host:27017/tracksy
 
 # Map Tiles (Optional - uses OpenStreetMap by default)
 MAPBOX_TOKEN=your-mapbox-token
@@ -294,7 +294,7 @@ Support for user-created plugins for self-hosted instances:
 ### Prerequisites
 - Docker (recommended for easy deployment)
 - Node.js and npm (for development)
-- Database (PostgreSQL or MongoDB)
+- Database (MongoDB for MVP - see Technical Architecture section)
 
 ### Installation
 Clone this repository:

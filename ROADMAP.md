@@ -186,17 +186,21 @@ This document outlines the high-level development roadmap for Tracksy, an Open-S
 
 ## 🏗️ Technical Architecture
 
-### MVP Stack
-- **Backend**: Node.js + Express + PostgreSQL + PostGIS
+### MVP Stack (Phase 1)
+- **Backend**: Node.js + Express + MongoDB (Mongoose)
 - **Frontend**: React + TypeScript + Leaflet
 - **Mobile**: React Native + React Native Maps
 - **Infrastructure**: Docker + Docker Compose
+- **Geospatial**: MongoDB 2dsphere indexes (migration to PostGIS planned for Phase 3)
 
-### Growth Stack Additions
+> **Note**: Per ADR-0002, MongoDB is used for MVP to maintain development velocity. Migration to PostgreSQL + PostGIS is planned when advanced spatial analytics are required or route dataset exceeds 50k entries.
+
+### Growth Stack Additions (Phase 2-3)
 - **Caching**: Redis
 - **File Storage**: S3-compatible storage
 - **Monitoring**: Prometheus + Grafana
 - **CI/CD**: GitHub Actions
+- **Database Evolution**: PostgreSQL + PostGIS for advanced geospatial features
 
 ### Advanced Stack Additions
 - **AI/ML**: Python + TensorFlow/PyTorch
@@ -302,10 +306,12 @@ This roadmap will be reviewed and updated monthly based on development progress,
 
 ### Backend Stack
 - **Runtime**: Node.js with Express.js
-- **Database**: PostgreSQL with PostGIS for spatial data
+- **Database**: MongoDB with GeoJSON/2dsphere indexes for spatial data (MVP)
 - **Authentication**: JWT tokens with bcrypt
 - **File Storage**: Local filesystem (S3-compatible for hosted)
 - **Maps**: OpenStreetMap tiles via Leaflet
+
+> **Note**: MongoDB is used for MVP to maintain velocity. Migration to PostgreSQL + PostGIS is planned for Phase 3 when advanced spatial analytics are required (per ADR-0002).
 
 ### Frontend Stack
 - **Framework**: React with TypeScript
@@ -537,7 +543,7 @@ Key focus areas:
 
 ### MVP-First Approach
 - **Priority:** Complete adventure platform MVP in 14 weeks before expanding advanced features
-- **Technical Stack:** Proven technologies (Node.js, React, PostgreSQL) for reliable foundation  
+- **Technical Stack:** Proven technologies (Node.js, React, MongoDB) for reliable foundation  
 - **Scope Management:** Clear MVP boundaries prevent feature creep
 
 ### Key Development Principles

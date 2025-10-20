@@ -20,7 +20,7 @@ Implement comprehensive user management system for the Tracksy platform.
 
 ## Technical Requirements
 - Use Node.js/Express backend
-- PostgreSQL database with user schema
+- MongoDB database with user schema
 - JWT token management
 - Email verification system
 
@@ -52,7 +52,7 @@ Build system for managing trail and route data including GPX file processing.
 - [ ] Simple search and filtering
 
 ## Technical Requirements
-- PostgreSQL with PostGIS for spatial data
+- MongoDB with GeoJSON for spatial data (MVP - see ADR-0002)
 - GPX file parsing library
 - RESTful API endpoints
 - File upload handling
@@ -312,7 +312,7 @@ Create Docker containers for self-hosted deployment of the entire platform.
 ## Acceptance Criteria
 - [ ] Backend API container
 - [ ] Frontend web container
-- [ ] PostgreSQL database container
+- [ ] MongoDB database container
 - [ ] Redis for session management
 
 ## Technical Requirements
