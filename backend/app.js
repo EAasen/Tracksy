@@ -1005,6 +1005,20 @@ app.get('/', (req, res) => {
   res.send('Hello, world!');
 });
 
+// Health check endpoint (unauthenticated, lightweight)
+app.get('/healthz', (req, res) => {
+  const uptimeSeconds = process.uptime();
+  const dbState = require('mongoose').connection.readyState; // 0=disconnected, 1=connected, 2=connecting, 3=disconnecting
+  const dbStatus = dbState === 1 ? 'connected' : (dbState === 2 ? 'connecting' : 'disconnected');
+  res.status(200).json({
+    status: dbState === 1 ? 'ok' : 'degraded',
+    uptime: uptimeSeconds,
+    timestamp: new Date().toISOString(),
+    database: dbStatus,
+    version: process.env.npm_package_version || '1.0.0'
+  });
+});
+
 // External provider integration stub
 app.post('/api/integration/:provider', authenticate, async (req, res) => {
   // Example: req.params.provider === 'fitbit', 'apple', etc.

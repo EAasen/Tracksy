@@ -1,6 +1,9 @@
 # Tracksy Backend Dockerfile
 FROM node:18-alpine
 
+# Install curl for health checks
+RUN apk add --no-cache curl
+
 # Set working directory
 WORKDIR /app
 
@@ -21,7 +24,7 @@ EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "const http = require('http'); const req = http.request('http://localhost:3000/', (res) => process.exit(res.statusCode === 200 ? 0 : 1)); req.on('error', () => process.exit(1)); req.end();"
+  CMD curl -f http://localhost:3000/healthz || exit 1
 
 # Start the application
 CMD ["npm", "start"]

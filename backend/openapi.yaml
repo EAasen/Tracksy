@@ -16,6 +16,18 @@ tags:
   - name: admin
   - name: integrations
 paths:
+  /healthz:
+    get:
+      tags: [health]
+      summary: Health check endpoint
+      description: Returns service health status, uptime, and database connectivity (unauthenticated)
+      responses:
+        '200':
+          description: Service is operational
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
   /signup:
     post:
       tags: [auth]
@@ -143,6 +155,23 @@ components:
         metricType: { type: string }
         value: { type: number }
         deleted: { type: boolean }
+    HealthResponse:
+      type: object
+      properties:
+        status: 
+          type: string
+          enum: [ok, degraded]
+        uptime: 
+          type: number
+          description: Process uptime in seconds
+        timestamp: 
+          type: string
+          format: date-time
+        database: 
+          type: string
+          enum: [connected, connecting, disconnected]
+        version: 
+          type: string
     AdminAnalytics:
       type: object
       properties:

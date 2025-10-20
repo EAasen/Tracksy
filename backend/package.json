@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "cross-env NODE_ENV=test mocha --require chai/register-should --timeout 10000 'test/**/*.test.js'",
+    "test": "cross-env NODE_ENV=test mocha --timeout 10000 'test/**/*.test.js'",
     "test:connect": "node test-mongo-connection.js",
     "security:audit": "npm audit --audit-level=moderate || exit 0",
     "security:fix": "npm audit fix || exit 0",
@@ -24,13 +24,10 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.0",
     "winston": "^3.3.3",
-<<<<<<< HEAD
     "joi": "^17.13.1",
     "multer": "^1.4.5-lts.1",
     "xml2js": "^0.6.2",
     "uuid": "^9.0.1",
-=======
->>>>>>> 4464504 (feat(api): introduce /api/v1 versioning and OpenAPI docs with Swagger UI)
     "swagger-ui-express": "^5.0.0",
     "yaml": "^2.4.2"
   },
