@@ -1,3 +1,8 @@
+# Comprehensive Messaging & Communication System
+
+> **⚠️ This template has been migrated to GitHub Issues**  
+> **Track progress at:** [Issue #37](https://github.com/EAasen/Tracksy/issues/37)
+
 ## Overview
 Develop a comprehensive messaging and communication system that enables direct messaging, group chats, activity coordination, and social interaction features missing from major fitness platforms like Strava.
 

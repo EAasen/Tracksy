@@ -1,3 +1,8 @@
+# Modern UI/UX with Dark Mode & Accessibility
+
+> **⚠️ This template has been migrated to GitHub Issues**  
+> **Track progress at:** [Issue #36](https://github.com/EAasen/Tracksy/issues/36)
+
 ## Overview
 Implement a modern, intuitive, and fast user interface with comprehensive theming support including dark mode, customizable layouts, and accessibility features that address the common UX complaints about existing fitness platforms.
 

@@ -1,3 +1,8 @@
+# Intelligent Data Insights & Pattern Recognition Engine
+
+> **⚠️ This template has been migrated to GitHub Issues**  
+> **Track progress at:** [Issue #35](https://github.com/EAasen/Tracksy/issues/35)
+
 ## Overview
 Create an intelligent insights engine that automatically analyzes user data across multiple sports and health metrics to provide actionable recommendations, pattern recognition, and proactive health guidance that connects different data points.
 

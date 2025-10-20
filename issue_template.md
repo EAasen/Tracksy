@@ -1,3 +1,8 @@
+# Universal Readiness & Recovery System
+
+> **⚠️ This template has been migrated to GitHub Issues**  
+> **Track progress at:** [Issue #44](https://github.com/EAasen/Tracksy/issues/44)
+
 ## Overview
 Create a revolutionary universal readiness and recovery system that intelligently combines data from all activity types (endurance, strength, yoga, etc.) to provide one holistic recommendation about training readiness - the "killer feature" that no current platform offers.
 

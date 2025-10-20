@@ -1,3 +1,8 @@
+# Advanced Device & Sensor Integration Platform
+
+> **⚠️ This template has been migrated to GitHub Issues**  
+> **Track progress at:** [Issue #38](https://github.com/EAasen/Tracksy/issues/38)
+
 ## Overview
 Implement advanced device and sensor integration that goes beyond current platforms by supporting both ANT+ and Bluetooth protocols, providing comprehensive battery management, and offering enhanced connectivity options for all major fitness devices.
 

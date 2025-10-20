@@ -1,3 +1,8 @@
+# Comprehensive Workout Planning & Training System
+
+> **⚠️ This template has been migrated to GitHub Issues**  
+> **Track progress at:** [Issue #33](https://github.com/EAasen/Tracksy/issues/33)
+
 ## Overview
 Develop a comprehensive workout planning, creation, and tracking system that allows users to build structured training plans, import workouts from coaches, and track performance against planned sessions across multiple sports.
 
