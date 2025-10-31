@@ -179,9 +179,22 @@ We are committed to protecting your privacy and personal data. For details on ho
 Tracksy/
 ├── backend/                 # API server (Node.js/Express)
 │   ├── app.js              # Main application server
+│   ├── API.md              # 📘 API Documentation (v1)
 │   ├── config/
 │   │   ├── database.js     # Database models and schemas
 │   │   └── logger.js       # Logging configuration
+│   ├── middleware/         # Express middleware
+│   │   ├── auth.js         # JWT authentication
+│   │   ├── errorHandler.js # Centralized error handling
+│   │   └── validator.js    # Request validation
+│   ├── routes/
+│   │   ├── index.js        # Route aggregator
+│   │   ├── health.js       # Health check endpoints
+│   │   └── v1/             # API v1 endpoints
+│   │       ├── index.js    # v1 route aggregator
+│   │       ├── auth.js     # Authentication endpoints
+│   │       ├── activities.js   # Activity CRUD
+│   │       └── health-metrics.js # Health metrics CRUD
 │   └── package.json
 ├── frontend/               # Web application (React)
 │   ├── src/
@@ -235,12 +248,44 @@ npm run db:seed
 
 ### API Documentation
 
-API documentation (OpenAPI 3) is available at `/api/docs` (Swagger UI) and the raw spec at `/api/openapi.yaml` when running the backend in development mode.
+**📘 Full API documentation is available in [`backend/API.md`](backend/API.md)**
 
-### Versioning Strategy
-The platform is introducing semantic versioning at the HTTP path level. Current endpoints exist under legacy `/api/*` paths and will gradually be migrated to `/api/v1/*`.
+The API uses versioned endpoints under `/api/v1` for:
+- Authentication & user management
+- Activity tracking and analytics
+- Health metrics collection
+- Route management
 
-Principles:
+Interactive API documentation (OpenAPI 3 / Swagger UI) is available at `/api/docs` when running the backend in development mode. The raw OpenAPI spec is at `/api/openapi.yaml`.
+
+### API Versioning
+
+The platform uses URL-based API versioning to ensure backward compatibility:
+
+**Current Version:** `v1` (October 2025)
+
+- **Versioned endpoints:** `/api/v1/*` (recommended for all new integrations)
+- **Legacy endpoints:** Root-level endpoints (maintained for backward compatibility, will be deprecated)
+- **Health checks:** `/healthz` (system health) and `/api/v1/health` (API health)
+
+Example endpoints:
+```
+POST   /api/v1/auth/signup          # User registration
+POST   /api/v1/auth/login           # Authentication
+GET    /api/v1/activities           # List activities
+POST   /api/v1/activities           # Create activity
+GET    /api/v1/health-metrics       # Health metrics
+```
+
+All API responses include:
+- Standardized error format with error codes
+- Request tracking ID for debugging
+- Rate limit headers
+- API version headers
+
+See [`backend/API.md`](backend/API.md) for complete endpoint documentation, request/response examples, error codes, and migration guide.
+
+### Versioning Principles
 1. Backward compatibility: Existing `/api/*` routes remain functional until a full v2 plan is published.
 2. Header signaling: All responses include `API-Version: 1`.
 3. Soft deprecation: Future deprecations will use `Deprecation` and `Sunset` headers before removal.
