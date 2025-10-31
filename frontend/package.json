@@ -19,7 +19,7 @@
   "license": "MIT",
   "dependencies": {
     "@heroicons/react": "^2.1.5",
-    "@reduxjs/toolkit": "^1.8.0",
+    "@reduxjs/toolkit": "^2.9.2",
     "axios": "^1.6.8",
     "chart.js": "^3.7.0",
     "prop-types": "^15.8.1",
