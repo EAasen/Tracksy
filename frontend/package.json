@@ -41,7 +41,7 @@
     "compression-webpack-plugin": "^8.0.1",
     "css-loader": "^5.2.6",
     "postcss-loader": "^6.1.0",
-    "react-refresh": "^0.14.0",
+    "react-refresh": "^0.18.0",
     "style-loader": "^2.0.0",
     "tailwindcss": "^2.2.4",
     "terser-webpack-plugin": "^5.1.4",
