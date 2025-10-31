@@ -36,7 +36,7 @@
     "mocha": "^11.7.4",
     "sinon": "^10.0.0",
     "supertest": "^7.1.4",
-    "cross-env": "^7.0.3",
+    "cross-env": "^10.1.0",
     "mongodb-memory-server": "^10.1.4"
   },
   "engines": {
