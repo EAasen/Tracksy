@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import App from './App';
 import './utils/performance'; // Import performance utilities
 
@@ -22,30 +22,17 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-// Render the application with React 18 createRoot API if available
-// Otherwise fallback to legacy render for React 17
+// Render the application using React 18 createRoot API
 const rootElement = document.getElementById('root');
 
-// Feature detection for React 18 API
 const renderApp = () => {
   if (rootElement) {
-    if (ReactDOM.createRoot) {
-      // React 18 API
-      const root = ReactDOM.createRoot(rootElement);
-      root.render(
-        <React.StrictMode>
-          <App />
-        </React.StrictMode>
-      );
-    } else {
-      // React 17 API
-      ReactDOM.render(
-        <React.StrictMode>
-          <App />
-        </React.StrictMode>,
-        rootElement
-      );
-    }
+    const root = createRoot(rootElement);
+    root.render(
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    );
   } else {
     console.error('Root element not found');
   }
