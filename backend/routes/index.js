@@ -1,9 +1,19 @@
-// Placeholder central router aggregator.
-// In future, split domain routes (activity, healthmetrics, admin, integrations) into separate files
-// and mount them here under versioned prefixes.
+/**
+ * Central Router Aggregator
+ * Mounts all API versions and health check routes
+ */
+
 const express = require('express');
 const router = express.Router();
 
-// Currently all routes reside in app.js; this file prepares structure for modularization.
+// Import route modules
+const v1Routes = require('./v1');
+const healthRoutes = require('./health');
+
+// Mount API v1 routes
+router.use('/api/v1', v1Routes);
+
+// Mount health check routes (legacy compatibility)
+router.use('/', healthRoutes);
 
 module.exports = router;

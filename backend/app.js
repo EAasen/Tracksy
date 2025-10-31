@@ -118,6 +118,20 @@ const upload = multer({
 const authLimiter = rateLimit({ windowMs: 15*60*1000, max: 20 });
 const passwordResetLimiter = rateLimit({ windowMs: 15*60*1000, max: 10 });
 
+// ============================================================================
+// NEW MODULAR API ROUTES (v1)
+// ============================================================================
+const routes = require('./routes');
+const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
+
+// Mount all routes (includes /api/v1/* and /healthz)
+app.use(routes);
+
+// ============================================================================
+// LEGACY ROUTES (Backward Compatibility)
+// These will be gradually migrated to /api/v1/*
+// ============================================================================
+
 // OAuth 2.0 client setup
 const oauth2Client = new OAuth2Client(
   process.env.CLIENT_ID,
@@ -1060,6 +1074,15 @@ app.post('/api/ai/assistant', authenticate, async (req, res) => {
   // For demo, return a canned response
   res.json({ reply: `AI says: You asked '${message}'` });
 });
+
+// ============================================================================
+// ERROR HANDLING MIDDLEWARE (Must be last)
+// ============================================================================
+// 404 handler for unknown routes
+app.use(notFoundHandler);
+
+// Global error handler
+app.use(errorHandler);
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(port, () => {
