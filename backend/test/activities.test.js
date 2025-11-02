@@ -6,7 +6,7 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 let app; let User, Route, Activity;
 
 async function signup(username,email){
-  const res = await request(app).post('/signup').send({username, password:'Password123!', email});
+  const res = await request(app).post('/api/v1/auth/signup').send({username, password:'Password123!', email});
   return res.body.accessToken;
 }
 
@@ -38,35 +38,37 @@ describe('Activity API', function(){
   it('creates activity with route fallback distance', async ()=>{
     const start = new Date().toISOString();
     const end = new Date(Date.now()+ 30*60000).toISOString();
-    const res = await request(app).post('/activities').set('Authorization','Bearer '+tokenA).send({
+    const res = await request(app).post('/api/v1/activities').set('Authorization','Bearer '+tokenA).send({
       type:'run', routeId, startTime:start, endTime:end, notes:'Morning run'
     }).expect(201);
-    res.body.should.have.property('id');
-    activityId = res.body.id;
+    res.body.should.have.property('data');
+    res.body.data.should.have.property('id');
+    activityId = res.body.data.id;
   });
 
   it('denies other user fetching private activity', async ()=>{
-    await request(app).get('/activities/'+activityId).set('Authorization','Bearer '+tokenB).expect(403);
+    await request(app).get('/api/v1/activities/'+activityId).set('Authorization','Bearer '+tokenB).expect(403);
   });
 
   it('lists own activities', async ()=>{
-    const res = await request(app).get('/activities').set('Authorization','Bearer '+tokenA).expect(200);
-    res.body.items.length.should.be.greaterThan(0);
+    const res = await request(app).get('/api/v1/activities').set('Authorization','Bearer '+tokenA).expect(200);
+    res.body.should.have.property('data');
+    res.body.data.length.should.be.greaterThan(0);
   });
 
   it('updates activity distance & metrics', async ()=>{
-    await request(app).put('/activities/'+activityId).set('Authorization','Bearer '+tokenA).send({distanceMeters: 5000, metrics:{avgPace:300}}).expect(200);
+    await request(app).put('/api/v1/activities/'+activityId).set('Authorization','Bearer '+tokenA).send({distanceMeters: 5000, metrics:{avgPace:300}}).expect(200);
   });
 
   it('soft deletes activity and hides it', async ()=>{
-    await request(app).delete('/activities/'+activityId).set('Authorization','Bearer '+tokenA).expect(200);
-    await request(app).get('/activities/'+activityId).set('Authorization','Bearer '+tokenA).expect(404);
+    await request(app).delete('/api/v1/activities/'+activityId).set('Authorization','Bearer '+tokenA).expect(200);
+    await request(app).get('/api/v1/activities/'+activityId).set('Authorization','Bearer '+tokenA).expect(404);
   });
 
   it('rejects invalid time range', async ()=>{
     const end = new Date().toISOString();
     const start = new Date(Date.now()+ 60*60000).toISOString();
-    await request(app).post('/activities').set('Authorization','Bearer '+tokenA).send({
+    await request(app).post('/api/v1/activities').set('Authorization','Bearer '+tokenA).send({
       type:'run', startTime:start, endTime:end
     }).expect(400);
   });
