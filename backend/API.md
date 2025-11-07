@@ -593,6 +593,7 @@ All errors follow a consistent format:
 | `INVALID_CREDENTIALS` | 401 | Wrong username/password |
 | `NO_TOKEN` | 401 | Authorization header missing |
 | `INVALID_TOKEN` | 401 | JWT token invalid |
+| `INVALID_TOKEN_FORMAT` | 401 | Authorization format invalid |
 | `TOKEN_EXPIRED` | 401 | JWT token expired |
 | `INVALID_REFRESH_TOKEN` | 401 | Refresh token invalid/expired |
 | `NOT_AUTHENTICATED` | 401 | Authentication required |
@@ -602,6 +603,8 @@ All errors follow a consistent format:
 | `DUPLICATE_USER` | 409 | Username/email exists |
 | `DUPLICATE_ENTRY` | 409 | Resource already exists |
 | `INTERNAL_ERROR` | 500 | Server error |
+| `DATABASE_ERROR` | 500 | Database operation failed |
+| `SERVICE_UNAVAILABLE` | 503 | Service temporarily unavailable |
 
 ## Rate Limiting
 
