@@ -28,6 +28,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /signup:
     post:
       tags: [auth]
@@ -45,7 +51,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthResponse'
-        '500': { description: Internal server error }
+        '400':
+          description: Validation error or duplicate user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /login:
     post:
       tags: [auth]
@@ -63,7 +80,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuthResponse'
-        '401': { description: Invalid credentials }
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/activitylog:
     get:
       tags: [activity]
@@ -87,7 +115,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ActivityLog'
-        '401': { description: Unauthorized }
+        '401':
+          description: Unauthorized - missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/healthmetrics:
     get:
       tags: [health]
@@ -101,7 +134,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/HealthMetric'
-        '401': { description: Unauthorized }
+        '401':
+          description: Unauthorized - missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/admin/analytics:
     get:
       tags: [admin]
@@ -113,7 +151,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AdminAnalytics'
-        '403': { description: Forbidden }
+        '401':
+          description: Unauthorized - missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   securitySchemes:
     bearerAuth:
@@ -181,5 +230,79 @@ components:
         popularActivity: { type: string }
         activeGoals: { type: integer }
         avgWaterIntake: { type: number }
+    Error:
+      type: object
+      required: [error]
+      description: |
+        Standardized error response format used across all API endpoints.
+        
+        ## Common Error Codes
+        
+        ### Authentication & Authorization (401, 403)
+        - `NO_TOKEN`: Missing authorization header
+        - `INVALID_TOKEN`: JWT token is invalid or malformed
+        - `TOKEN_EXPIRED`: JWT token has expired
+        - `INVALID_CREDENTIALS`: Invalid username/password
+        - `NOT_AUTHENTICATED`: Authentication required
+        - `FORBIDDEN`: Insufficient permissions
+        - `INVALID_REFRESH_TOKEN`: Refresh token is invalid or expired
+        
+        ### Validation Errors (400)
+        - `VALIDATION_ERROR`: Request validation failed (check details array)
+        - `INVALID_ID`: Invalid MongoDB ObjectId format
+        - `INVALID_TIME_RANGE`: End time is before start time
+        - `INVALID_ROUTE`: Route ID not found or invalid
+        
+        ### Resource Errors (404, 409)
+        - `NOT_FOUND`: Resource not found
+        - `DUPLICATE_USER`: Username or email already exists
+        - `DUPLICATE_ENTRY`: Resource already exists
+        - `FORBIDDEN_ROUTE`: User doesn't have access to this route
+        
+        ### Server Errors (500, 503)
+        - `INTERNAL_ERROR`: Internal server error
+        - `DATABASE_ERROR`: Database operation failed
+        - `SERVICE_UNAVAILABLE`: Service is temporarily unavailable
+      properties:
+        error:
+          type: object
+          required: [message, code, statusCode, requestId]
+          properties:
+            message:
+              type: string
+              description: Human-readable error message
+              example: "Validation failed"
+            code:
+              type: string
+              description: Machine-readable error code for client handling
+              example: "VALIDATION_ERROR"
+            statusCode:
+              type: integer
+              description: HTTP status code
+              example: 400
+            requestId:
+              type: string
+              description: Unique request identifier for tracing
+              example: "550e8400-e29b-41d4-a716-446655440000"
+            details:
+              type: array
+              description: Optional array of detailed error information
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                    description: Field name that caused the error
+                  message:
+                    type: string
+                    description: Specific error message for this field
+              example:
+                - field: "email"
+                  message: "Invalid email format"
+                - field: "password"
+                  message: "Password must be at least 8 characters"
+            stack:
+              type: string
+              description: Stack trace (only in development mode)
 security:
   - bearerAuth: []
