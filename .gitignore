@@ -123,3 +123,7 @@ Thumbs.db
 *.sublime-syntax-highlighter-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting
 *.sublime-syntax-highlighter-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-definition
 *.sublime-syntax-highlighter-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting-highlighting
+
+# Build output
+dist/
+frontend/dist/
