@@ -25,7 +25,7 @@
     "joi": "^17.13.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.0",
-    "multer": "^1.4.5-lts.1",
+    "multer": "^2.0.2",
     "swagger-ui-express": "^5.0.0",
     "uuid": "^13.0.0",
     "winston": "^3.18.3",
