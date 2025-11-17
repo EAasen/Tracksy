@@ -5,7 +5,9 @@ const dbUrl = process.env.DATABASE_URL || 'mongodb://localhost:27017/tracksy';
 mongoose.connect(dbUrl, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  poolSize: 10, // Database connection pooling
+  // poolSize is deprecated in Mongoose 8.x - connection pooling is now automatic
+  maxPoolSize: 10, // Maximum number of connections in the pool
+  minPoolSize: 2,  // Minimum number of connections in the pool
 });
 
 const db = mongoose.connection;
